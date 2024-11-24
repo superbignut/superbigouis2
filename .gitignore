@@ -16,3 +16,4 @@ x86-asm/analyse/
 x86-asm/pics/
 x86-asm/test/
 /build
+*.code-workspace
