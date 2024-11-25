@@ -11,7 +11,7 @@ build/master.img: build/boot.bin
 # 
 ifeq ("$(wildcard build/master.img)", "")
 # 创建硬盘镜像	
-	bximage -func=create -hd=16M -imgmode=flat -sectsize=512 $@ -q
+	bximage -q -func=create -hd=16M -imgmode=flat -sectsize=512 $@
 endif
 	dd if=build/boot.bin of=$@ bs=512 count=1 
 

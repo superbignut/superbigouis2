@@ -9,11 +9,26 @@
     mov ss, ax
     mov sp, 0x7c00
 
+
+    ; 注册中断向量
+    mov word [0x80 * 4], print  ;ip
+    mov word [0x80 * 4 + 2], 0  ;cs
+    
+    ; 调用中断
+    int 0x80    
+
+    jmp $
+
+    
+
+print:
+    mov ax, 0
+    mov ds, ax
     mov ax, 0xb800
     mov ds, ax
     mov byte [ds:0], 'H'
-    
-    jmp $
+    iret
+
 
     times 510 - ($-$$) db 0
 

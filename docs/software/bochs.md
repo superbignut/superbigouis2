@@ -14,7 +14,8 @@
         s # 单步
         c # continue
         sreg # 段寄存器
-        r # 通用寄存器
+        r # 通用寄存器4
+        print-stack # 查看栈
 
 > x  /nuf addr      Examine memory at linear address addr>
 > xp /nuf addr      Examine memory at physical address addr
