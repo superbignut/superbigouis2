@@ -66,29 +66,29 @@ The IVT is typically located at 0000:0000H, and is 400H bytes in size (4 bytes f
 
 使用call 和call far 时，分别会将ip和cs、ip入栈，而在 int 的时候则是将 cs、ip、EFLAG三个入栈;对应的也就需要ret、retf和iret分别将对应数量的寄存器出栈。
 
+        + call / ret -> ip
+        + callf / retf -> ip + cs 
+        + int -> ip + cs + eflag
+
+
 下面是iret的测试代码，使用bochs debug可以观察栈的变化：
                 
-                ; 注册中断向量
-                mov word [0x80 * 4], print  ;ip
-                mov word [0x80 * 4 + 2], 0  ;cs
-                
-                ; 调用中断
-                int 0x80    
+            ; 注册中断向量
+            mov word [0x80 * 4], print  ;ip
+            mov word [0x80 * 4 + 2], 0  ;cs
 
-                jmp $
+            ; 调用中断
+            int 0x80    
+            jmp $
 
-                
+        print:
+            mov ax, 0
+            mov ds, ax
+            mov ax, 0xb800
+            mov ds, ax
+            mov byte [ds:0], 'H'
+            iret
 
-            print:
-                mov ax, 0
-                mov ds, ax
-                mov ax, 0xb800
-                mov ds, ax
-                mov byte [ds:0], 'H'
-                iret
-
-
-                times 510 - ($-$$) db 0
-
-                db 0x55, 0xaa
+            times 510 - ($-$$) db 0
+            db 0x55, 0xaa
 

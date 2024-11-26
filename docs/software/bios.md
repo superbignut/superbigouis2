@@ -24,3 +24,14 @@ int 0x10 这种就都是 bios的函数
 
 > The INT n instruction generates a call to the interrupt or exception handler specified with the destination operand(see the section titled “Interrupts and Exceptions” in Chapter 6 of the Intel ® 64 and IA-32 Architectures SoftwareDeveloper’s Manual, Volume 1). The destination operand specifies a vector from 0 to 255, encoded as an 8-bitunsigned intermediate value. Each vector provides an index to a gate descriptor in the IDT. The first 32 vectors arereserved by Intel for system use. Some of these vectors are used for internally generated exceptions.
 
++ INT 0x10, AH = 0xE -- display char 
+
+把字符放到AL中，进而调用中断， 就可以将字符打印到屏幕上， 具体的bios介绍，可见up给的参考书，在osdev中的最后也有提及，是ibm的参考手册：
+
+> IBM PS 2 and PC BIOS Interface Technical Reference 
+
+并且看到，说bios 不能在保护模式中使用：
+
+> Unfortunately, in Protected mode, almost all BIOS functions become unavailable, and trying to call them nonetheless will result in exceptions or unreliable responses (because of the different way segment values are handled). Some newer services however (such as SMBios, PCI, PnP, or VBE) offer an interface that is compatible with 32bit Protected Mode.
+
+> If you must use Real Mode BIOS functions after the CPU has been switched into Protected Mode, then see Virtual 8086 Mode, or perhaps exit Protected Mode, and momentarily return to Real Mode. Both methods have serious problems, and therefore any calls to the BIOS should be done before any physical device is programmed by your code:
