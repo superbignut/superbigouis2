@@ -125,4 +125,4 @@ hello_str:
 > It is necessary to build an MBR that is exactly 512 bytes long. How this is done depends on your assembler and linker. The last 2 bytes must be the special boot pattern (0x55 followed by 0xAA), and as said above, the bootstrap portion of the MBR must be at most 446 bytes long. You must also put at least one partition table entry in the Partition Table portion of the MBR -- otherwise some BIOSes will refuse to boot from the disk. This includes most UEFI firmware in BIOS-compatibility mode.
 
 
-主引导扇区也就是bios加载的512个字节, osdev 中有指出，MBR = 启动代码 + 硬盘分区别表 + 0x55 0xaa, 但是在用bochs 启动的时候似乎没有也ok 
+主引导扇区也就是bios加载的512个字节, osdev 中有指出，MBR = 启动代码 + 硬盘分区别表 + 0x55 0xaa, 但是在用bochs 启动的时候似乎没有硬盘分区表也ok 

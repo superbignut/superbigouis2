@@ -2,7 +2,7 @@
 
     mov ax, 3
     int 0x10
-    xchg bx, bx
+    ; xchg bx, bx
     mov ax, 0
     mov ds, ax
     mov es, ax
@@ -12,18 +12,27 @@
     mov si, hello_str
     call real_printf    
 
-    ; 把硬盘的第0个扇区(512B) 读到 0x8c00
-
-    mov edi, 0x8c00
-    mov ecx, 0      ; 第0 个扇区
-    mov bl, 0x1     ; 就读1个
+    mov edi, 0x1000     ; 加载地址 0x1000
+    mov ecx, 0x2        ; 第2个扇区开始读
+    mov bl, 0x4         ; 总共读4个扇区
 
     call read_disk
+    
+
+    cmp word [ds:0x1000], 0xaa55   ; 虽然存的是 db 0x55, 0xaa, 但是当作一个字节取出来， 就是0xaa55
+    jnz boot_error
+
     xchg bx, bx
+    jmp 0:0x1002        ; 如果写成0:0这种形式就是jmpf， 如果只是jmp 0x1002 就是普通的jmp
 halt:
     jmp halt
 
-
+boot_error:
+    mov si, .msg
+    call real_printf
+    hlt
+    .msg:
+        db "Booting Error...", 10, 13, 0
 
 read_disk:
     pushad          ;eax, ecx, ebx, edx, esp, ebp, esi, edi 这里如果是16位的栈的话，32位寄存器会压两次
@@ -131,9 +140,9 @@ print:
     mov ds, ax
     mov byte [ds:0], 'H'
     iret
-
+        
 hello_str:
-    db 'H', 'E', 'L', 'L', 'O', 0
+    db 'Booting os...', 10, 13, 0
 
     times 510 - ($-$$) db 0
     db 0x55, 0xaa

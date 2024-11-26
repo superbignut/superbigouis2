@@ -92,3 +92,5 @@ The IVT is typically located at 0000:0000H, and is 400H bytes in size (4 bytes f
             times 510 - ($-$$) db 0
             db 0x55, 0xaa
 
+
+jmp 和 jmpf 的区别是什么
