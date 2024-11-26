@@ -112,6 +112,17 @@ hello_str:
 
     db 0x55, 0xaa
 
-
-
  -->
+
+ [MBR-主引导扇区](https://wiki.osdev.org/MBR_(x86))
+
+ > A Master Boot Record (MBR) is the bootsector of a hard disk. That is, it is what the BIOS loads and runs, when it boots a hard disk. The MBR is the very first sector of the hard disk; it contains an MBR Bootstrap program (described below), and a Partition Table. Devices that emulate a hard disk during system initialization must also contain an MBR, because they must also have Partition Tables -- even if they are not bootable.
+
+> When the BIOS transfers control to the MBR bootstrap code, the system is in Real mode. The MBR will probably also run entirely in Real mode, so it is important to understand Real mode addressing.
+
+> Self-relocation is one of the things C can't do, and most modern C compilers can't create code that is compatible with Real mode, anyway. So an MBR must be written in Assembly.
+
+> It is necessary to build an MBR that is exactly 512 bytes long. How this is done depends on your assembler and linker. The last 2 bytes must be the special boot pattern (0x55 followed by 0xAA), and as said above, the bootstrap portion of the MBR must be at most 446 bytes long. You must also put at least one partition table entry in the Partition Table portion of the MBR -- otherwise some BIOSes will refuse to boot from the disk. This includes most UEFI firmware in BIOS-compatibility mode.
+
+
+主引导扇区也就是bios加载的512个字节, osdev 中有指出，MBR = 启动代码 + 硬盘分区别表 + 0x55 0xaa, 但是在用bochs 启动的时候似乎没有也ok 
