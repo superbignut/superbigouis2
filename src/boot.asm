@@ -9,7 +9,7 @@
     mov ss, ax
     mov sp, 0x7c00
 
-    mov si, hello_str
+    mov si, booting_os_str
     call real_printf    
 
     mov edi, 0x1000     ; 加载地址 0x1000
@@ -22,7 +22,7 @@
     cmp word [ds:0x1000], 0xaa55   ; 虽然存的是 db 0x55, 0xaa, 但是当作一个字节取出来， 就是0xaa55
     jnz boot_error
 
-    xchg bx, bx
+    ; xchg bx, bx
     jmp 0:0x1002        ; 如果写成0:0这种形式就是jmpf， 如果只是jmp 0x1002 就是普通的jmp
 halt:
     jmp halt
@@ -141,7 +141,7 @@ print:
     mov byte [ds:0], 'H'
     iret
         
-hello_str:
+booting_os_str:
     db 'Booting os...', 10, 13, 0
 
     times 510 - ($-$$) db 0
