@@ -296,7 +296,7 @@ data_selector equ (0x0002 << 3)  ; index = 2 选择gdt中的第二个 2^13=8192
 
 ;gdt 描述地址 用来表示GDT表的起始地址和长度， 使用lgdt 加载到gdtr寄存器中，
 gdt_ptr:                       ; 6B at all 
-    dw (gdt_end - gdt_base -1) ; 2B limit limit = len - 1
+    dw (gdt_end - gdt_base -1) ; 2B limit limit = len - 1   
     dd gdt_base                ; 4B base GDT基地址
 
 gdt_base:

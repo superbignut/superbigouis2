@@ -5,7 +5,7 @@
     mov si, loading_os_str
     call real_printf
 
-;###################################### 进行内存检测 ##############################################
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 进行内存检测 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     mov si, memory_detect_str
     call real_printf
 check_memory:                               
@@ -32,18 +32,11 @@ check_memory:
 
 
 
-;###################################### 内存检测结束 ##############################################
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 内存检测结束 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+    jmp prepare_for_protected_mode  ; 跳到保护模式准备阶段
 
-    jmp $
-
-
-
-
-
-
-
-
-;############################ 下面的代码用于显示哪些内存布局可用，进入保护模式则跳过 ##################
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 下面的代码用于显示哪些内存布局可用，进入保护模式则跳过 ;;;;;;;;;;;;;;;;;;
     mov word cx, [memory_detect_ards_num]               ; 有多少个 ards
     mov si, 0
     mov ax, 0
@@ -75,12 +68,29 @@ check_memory:
         jmp $
 
 
+prepare_for_protected_mode:
+    mov si, prepare_for_protected_mode_str
+    call real_printf
+
+    cli             ; 关闭中断
+
+    in al, 0x92     ; 打开A20开关
+    or al, 0b10
+    out 0x92, al
+
+    lgdt [gdtr]
+
+    mov eax, cr0    ; 打开cr0-PE 进入保护模式
+    or al, 1        ; set PE (Protection Enable) bit in CR0 (Control Register 0)
+    mov cr0, eax
+
+    jmp code_selector : protect_enable      ;调到保护模式
 
 halt:
     jmp halt
 
 
-;###################################### 实模式下打印 ##############################################
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 实模式下打印 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 real_printf:
     ; si用于存放字符串首地址， 字符串用0表示结束
     mov cx, 0
@@ -96,12 +106,68 @@ real_printf:
     jmp .next
     .done:
         ret
-;###################################### 进入loader打印字符串 #########################################
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 保护模式 开始 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+protect_enable:
+
+    jmp $
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; segment selector ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+code_selector equ 0x0001 << 3
+
+data_selector equ 0x0002 << 3
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; gdt 开始 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+gdtr:                                       ; 需要加载到 gdtr 的内容 需要包括 16位limit + 32位地址 ，描述了gdt表的基本信息
+    dw (gdt_end - gdt_base -1)              ; limit - 1 doc中有说明
+    dd gdt_base_address                     ; 基地址
+
+segment_descriptor_base equ 0               ; 0 
+
+segment_descriptor_limit equ 0xfffff        ; 2**20 * 4kB = 4GB
+
+gdt_base_address:
+    dd 0, 0                     ; 第一个空的segment-descriptor 8个字节
+
+; 这里使用V3-3.2.1中提到的Basic Flat Model 即代码段和数据段都是4GB的空间来进行简单的划分
+gdt_code_segment_descriptor:
+    dw segment_descriptor_limit & 0xffff            ; limit[0:15]
+    dw segment_descriptor_base & 0xffff             ; base[0:15]
+    db (base >> 16) & 0xff                          ; base[16:23]
+    db 0b1001_0000 | 0b1110                         ; D_7=4KB 
+                                                    ; DPL_5_6=most privileged level 
+                                                    ; S_4= code_or_data segment
+                                                    ; Type_0_3 = Execute/Read, conforming
+    db 0b1100_0000 | ( (limit >> 16) & 0xf )        ; G_7/DB_6/L_5/AVL_4/limit[16:19]_3_0
+    db (base >> 24) & 0xff                          ; base[24:31]
+
+gdt_data_segment_descriptor:
+    dw limit & 0xffff
+    dw base & 0xffff
+    db (base >> 16) & 0xff                          
+    db 0b1001_0000 | 0b0010                         ; D_7=4KB 
+                                                    ; DPL_5_6=most privileged level 
+                                                    ; S_4= code_or_data segment
+                                                    ; Type_0_3 = Read/Write
+    db 0b1100_0000 | ( (limit >> 16) & 0xf )
+    db (base >> 24) & 0xff    
+
+
+gdt_end:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 进入loader打印字符串 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 loading_os_str:
     db 'Loading os...', 10, 13, 0
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 保护模式辅助字段 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+prepare_for_protected_mode_str:
+    db "Preparing for Protected Mode...", 10, 13, 0
 
-;###################################### 内存检测辅助字段 ##############################################
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 内存检测辅助字段 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 memory_detect_ards_num:     ; 用来统计内存检测返回了多少个ards
     dw 0
 memory_detect_str:
