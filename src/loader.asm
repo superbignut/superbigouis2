@@ -42,7 +42,7 @@ check_memory:
     mov ax, 0
     mov es, ax
 
-    xchg bx, bx
+    ; xchg bx, bx
 
     .show:                                              ; 把检测的结果不断的加载到寄存器中，使用xchg查看
         mov eax, [memory_detect_ards_buffer + si]       ; 32bits 这里默认高32位全是0
@@ -69,6 +69,7 @@ check_memory:
 
 
 prepare_for_protected_mode:
+
     mov si, prepare_for_protected_mode_str
     call real_printf
 
@@ -78,13 +79,14 @@ prepare_for_protected_mode:
     or al, 0b10
     out 0x92, al
 
-    lgdt [gdtr]
+    lgdt [gdtr_register]
 
     mov eax, cr0    ; 打开cr0-PE 进入保护模式
     or al, 1        ; set PE (Protection Enable) bit in CR0 (Control Register 0)
     mov cr0, eax
 
-    jmp code_selector : protect_enable      ;调到保护模式
+    xchg bx, bx    
+    jmp code_selector : protect_enable      ; 跳到保护模式，一定需要jmp dword吗
 
 halt:
     jmp halt
@@ -108,23 +110,33 @@ real_printf:
         ret
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 保护模式 开始 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[bits 32]
 protect_enable:
+    mov ax, data_selector       ; 切换到数据段
+	mov ds, ax                  ; 这里的ds在保护模式下还是会用到， 真实没想到 
+	mov es, ax
+	mov ss, ax
+	mov fs, ax
+	mov gs, ax
+    mov esp, 0x10000
+    xchg bx, bx
 
-    jmp $
+    mov byte ds:[0x110000], 0xab
+    ; mov byte ds:[0xb8000], 'P'
+    jmp $   
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; segment selector ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-code_selector equ 0x0001 << 3
+code_selector equ (0x0001 << 3)               ; selector 右三位置0
 
-data_selector equ 0x0002 << 3
+data_selector equ (0x0002 << 3)               ; 其余为 index
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; gdt 开始 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-gdtr:                                       ; 需要加载到 gdtr 的内容 需要包括 16位limit + 32位地址 ，描述了gdt表的基本信息
-    dw (gdt_end - gdt_base -1)              ; limit - 1 doc中有说明
-    dd gdt_base_address                     ; 基地址
+gdtr_register:                                              ; 需要加载到 gdtr 的内容 需要包括 16位limit + 32位地址 ，描述了gdt表的基本信息
+    dw (gdt_end_address - gdt_base_address -1)              ; limit - 1 doc中有说明
+    dd gdt_base_address                                     ; 基地址
 
 segment_descriptor_base equ 0               ; 0 
 
@@ -137,27 +149,27 @@ gdt_base_address:
 gdt_code_segment_descriptor:
     dw segment_descriptor_limit & 0xffff            ; limit[0:15]
     dw segment_descriptor_base & 0xffff             ; base[0:15]
-    db (base >> 16) & 0xff                          ; base[16:23]
+    db (segment_descriptor_base >> 16) & 0xff                          ; base[16:23]
     db 0b1001_0000 | 0b1110                         ; D_7=4KB 
                                                     ; DPL_5_6=most privileged level 
                                                     ; S_4= code_or_data segment
                                                     ; Type_0_3 = Execute/Read, conforming
-    db 0b1100_0000 | ( (limit >> 16) & 0xf )        ; G_7/DB_6/L_5/AVL_4/limit[16:19]_3_0
-    db (base >> 24) & 0xff                          ; base[24:31]
+    db 0b1100_0000 | ( (segment_descriptor_limit >> 16) & 0xf )        ; G_7/DB_6/L_5/AVL_4/limit[16:19]_3_0
+    db (segment_descriptor_base >> 24) & 0xff                          ; base[24:31]
 
 gdt_data_segment_descriptor:
-    dw limit & 0xffff
-    dw base & 0xffff
-    db (base >> 16) & 0xff                          
+    dw segment_descriptor_limit & 0xffff
+    dw segment_descriptor_base & 0xffff
+    db (segment_descriptor_base >> 16) & 0xff                          
     db 0b1001_0000 | 0b0010                         ; D_7=4KB 
                                                     ; DPL_5_6=most privileged level 
                                                     ; S_4= code_or_data segment
                                                     ; Type_0_3 = Read/Write
-    db 0b1100_0000 | ( (limit >> 16) & 0xf )
-    db (base >> 24) & 0xff    
+    db 0b1100_0000 | ( (segment_descriptor_limit >> 16) & 0xf )
+    db (segment_descriptor_base >> 24) & 0xff    
 
 
-gdt_end:
+gdt_end_address:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 进入loader打印字符串 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 loading_os_str:

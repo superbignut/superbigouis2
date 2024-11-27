@@ -53,6 +53,7 @@ Osdev第一句，保护模式，赋予了系统严格的内存和硬件io的保�
     + （A20线打开）Intel手册中没写，但是需要加上
     + lgdt 加载gdt的基地址
     + cr0修改
+
 > Immediately following the MOV CR0 instruction, execute a far JMP or far CALL instruction. (This operation is typically a far jump or call to the next instruction in the instruction stream.)
 
 > The JMP or CALL instruction immediately after the MOV CR0 instruction changes the flow of execution and serializes the processor.
@@ -165,27 +166,6 @@ effect on the generation of exceptions and NMI interrupts.
 
 
 使用 cli 关闭可屏蔽中断，但是对不可屏蔽中断和异常没有影响
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     jmp prepare_protect_mode
