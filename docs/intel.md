@@ -94,3 +94,18 @@ The IVT is typically located at 0000:0000H, and is 400H bytes in size (4 bytes f
 
 
 jmp 和 jmpf 的区别是什么
+
+
+[cli]()
+
+> In most cases, CLI clears the IF flag in the EFLAGS register and no other flags are affected. Clearing the IF flag
+causes the processor to ignore maskable external interrupts. The IF flag and the CLI and STI instruction have no
+effect on the generation of exceptions and NMI interrupts.
+
+使用 cli 关闭可屏蔽中断，但是对不可屏蔽中断和异常没有影响
+
+[jmp]() 在Intel手册中的jmp文档部分的后面其实有介绍 使用jmp 跳到保护模式，但是看的模模糊糊的，不清楚
+
+
++ [lgdt 指令](): lgdt指令就是告诉系统gdt表在那里
+> Loads the values in the source operand into the global descriptor table register (GDTR) or the interrupt descriptor table register (IDTR). The source operand specifies a 6-byte memory location that contains the base address (a linear address) and the limit (size of table in bytes) of the global descriptor table (GDT) or the interrupt descriptor table (IDT).  

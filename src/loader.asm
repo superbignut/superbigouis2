@@ -33,7 +33,7 @@ check_memory:
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 内存检测结束 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    
+
     jmp prepare_for_protected_mode  ; 跳到保护模式准备阶段
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 下面的代码用于显示哪些内存布局可用，进入保护模式则跳过 ;;;;;;;;;;;;;;;;;;
@@ -85,8 +85,8 @@ prepare_for_protected_mode:
     or al, 1        ; set PE (Protection Enable) bit in CR0 (Control Register 0)
     mov cr0, eax
 
-    xchg bx, bx    
-    jmp code_selector : protect_enable      ; 跳到保护模式，一定需要jmp dword吗
+    ; xchg bx, bx    
+    jmp code_selector : protect_enable      ; 跳到保护模式
 
 halt:
     jmp halt
@@ -120,10 +120,10 @@ protect_enable:
 	mov fs, ax
 	mov gs, ax
     mov esp, 0x10000
-    xchg bx, bx
 
-    mov byte ds:[0x110000], 0xab
-    ; mov byte ds:[0xb8000], 'P'
+    ; mov byte ds:[0x110000], 0xab
+    mov byte ds:[0xb8000], 'P'
+    ; xchg bx, bx
     jmp $   
 
 
@@ -177,7 +177,7 @@ loading_os_str:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 保护模式辅助字段 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 prepare_for_protected_mode_str:
-    db "Preparing for Protected Mode...", 10, 13, 0
+    db "Preparing P Mode...", 10, 13, 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 内存检测辅助字段 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 memory_detect_ards_num:     ; 用来统计内存检测返回了多少个ards

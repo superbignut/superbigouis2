@@ -63,6 +63,33 @@ extern 和 global 需要结合使用，任何使用extern的地方都需要找�
 
 >The most likely reason for using the BITS directive is to write 32-bit or 64-bit code in a flat binary file; this is because the bin output format defaults to 16-bit mode in anticipation of it being used most frequently to write DOS .COM programs, DOS .SYS device drivers and boot loader software.
 
-> The most likely reason for using the BITS directive is to write 32-bit or 64-bit code in a flat binary file; this is because the bin output format defaults to 16-bit mode in anticipation of it being used most frequently to write DOS .COM programs, DOS .SYS device drivers and boot loader software.
+这里自己尝试了一下， 四种情况全都使用
 
-使用起来说法还听过的，用的时候再看
+                nasm test.asm -o test.bin ； 进行编译， 结果如下：
+---
+
+        mov bx, 0x10
+
+1. 编译出的是 BB 10 00 ， BB应该是代表 mov bx， ** ，而1000  代表的就是16位的0x10 
+        
+---
+        mov ebx, 0x10
+
+2. 编译出的是 66 BB 10 00 00 00 ， 66 BB代表 在16位 模式下使用 32位 的 mov ebx， ** ，而10 00 00 00 代表的就是32位的0x10 
+---
+        [bits 32]
+        mov bx, 0x10
+
+3. 编译出的是 66 BB 10 00, 66 在这里就是反过来的表示，为在32位模式下使用16位寄存器， 10 00 代表 16位0x10
+---
+        [bits 32]
+        mov ebx, 0x10
+
+4. 编译出的是 BB 10 00 00 00 , 可以看到， 1和4的情况是没有66 的也就是 对应处理器位数相匹配的情况
+
+---
+
+因此，在cpu 是保护模式的时候，如果没有 用[bits 32]() 来把代码编译成32位 的形式，当cpu 看到  mov bx, 0x10( BB 10 00 ) 的时候，会认为这是在操作32位的寄存器，
+会继续向后找全 32位操作数，因此后续指令也都会出问题。
+
+这也就应该是我代码中跳到保护模式 总是出错的原因：漏写了 bits 32
