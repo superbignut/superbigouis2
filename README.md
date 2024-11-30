@@ -19,5 +19,3 @@ Tricks:
 +  Use "make" in "Cmder.exe" to ensure Makefile works properly.
 +  Utilize "bochsdbg.exe" to enable debug mode of Bochs.
 +  Replace "dd" with "dd for windows".
-+  Substitute "ld" with "MinGW-ld.gold.exe" so that "elf_i386" can be choice.
-

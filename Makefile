@@ -11,6 +11,20 @@ BUILD_KERNEL := $(BUILD)/kernel
 
 ENTRY_POINT := 0x10000
 
+CFLAG := -m32
+CFLAG += -fno-builtin # 不需要gcc的内置函数 such as : memcpy
+CFLAG += -nostdinc # 不需要标准头文件
+CFLAG += -fno-pic # 不需要位置无关的代码 
+CFLAG += -fno-pie # 不需要位置无关的可执行程序
+CFLAG += -nostdlib # 不需要标准库
+CFLAG += -fno-stack-protector # 不需要栈保护
+CFLAG := $(strip ${CFLAG}) # 删除结尾的换行，更简洁
+
+DEBUG := -g # 调试信息	
+
+INCLUDE := -I./src/include # 头文件
+
+CC = gcc
 
 .PHONY: bochs, clean
 
@@ -47,19 +61,24 @@ $(BUILD_BOOT)/%.bin: $(SRC_BOOT)/%.asm
 $(BUILD_KERNEL)/system.bin: $(BUILD_KERNEL)/kernel.bin
 	objcopy -O binary $< $@
 
-$(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o
-	ld.gold -m elf_i386 -static $^ -o $@ -Ttext $(ENTRY_POINT)
+$(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o \
+							$(BUILD_KERNEL)/main.o
+# 这里链接到了汇编和c
+	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.asm
+# @echo $(dir $@)
+	$(shell mkdir -p $(dir $@))
+	nasm -f win32 $< -o $@			
+# elf32 ???
+
+$(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.c
 #@echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
-	nasm -f elf32 $< -o $@
+	$(CC) $(CFLAG) $(DEBUG) $(INCLUDE) -c $< -o $@
 
 $(BUILD_KERNEL)/system.map: $(BUILD_KERNEL)/kernel.bin
 	nm $< | sort > $@
 
 clean:
 	rm -r $(BUILD)/
-	
-	
-	
