@@ -83,3 +83,15 @@ program header table 是运行时的表，由很多segment 组成，每个segmen
         uint32_t   r_info;
     } Elf32_Rel;
     ```
+
+
+---
+
+但是最后我交叉编译失败了，使用MINGW 中的 i386pe 代替了 elf_i386 来作为编译和链接部分的中间格式，
+并且nasm 也选用了 -f win32 ，输出同样为 i386pe格式
+
+为什么我找不到 在windows中 编译出 elf_i386 的方法呢？？？
+
+---
+
+[PE](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format) 的具体格式似乎可视化程度还高一些， 有机会再了解吧

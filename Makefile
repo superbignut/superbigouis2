@@ -12,16 +12,16 @@ BUILD_KERNEL := $(BUILD)/kernel
 ENTRY_POINT := 0x10000
 
 CFLAG := -m32
-CFLAG += -fno-builtin # 不需要gcc的内置函数 such as : memcpy
-CFLAG += -nostdinc # 不需要标准头文件
-CFLAG += -fno-pic # 不需要位置无关的代码 
-CFLAG += -fno-pie # 不需要位置无关的可执行程序
-CFLAG += -nostdlib # 不需要标准库
-CFLAG += -fno-stack-protector # 不需要栈保护
-CFLAG := $(strip ${CFLAG}) # 删除结尾的换行，更简洁
-
-DEBUG := -g # 调试信息	
-
+CFLAG += -fno-builtin 			# 不需要gcc的内置函数
+CFLAG += -nostdinc 				# 不需要标准头文件
+CFLAG += -fno-pic 				# 不需要位置无关的代码 
+CFLAG += -fno-pie 				# 不需要位置无关的可执行程序
+CFLAG += -nostdlib 				# 不需要标准库
+CFLAG += -fno-stack-protector 	# 不需要栈保护
+CFLAG += -v
+DEBUG := -g 					# 调试信息	
+# 栈保护和位置无关的代码应该是会在原有代码上插入一些修改信息，所以禁用掉
+# 头文件 和 内置函数 不需要也禁用掉
 INCLUDE := -I./src/include # 头文件
 
 CC = gcc
@@ -30,6 +30,7 @@ CC = gcc
 
 bochs: $(BUILD)/master.img
 # 启动bochs
+# @echo $(CFLAG)
 	bochsdbg -q -f ./bochsrc 
 
 # boot.bin -> boot.asm
@@ -39,8 +40,9 @@ bochs: $(BUILD)/master.img
 $(BUILD)/master.img: $(BUILD_BOOT)/boot.bin \
 					 $(BUILD_BOOT)/loader.bin \
 					 $(BUILD_KERNEL)/system.bin \
-					 $(BUILD_KERNEL)/system.map
-# 
+
+#$(BUILD_KERNEL)/system.map
+
 ifeq ("$(wildcard $(BUILD)/master.img)", "")
 # 创建硬盘镜像	
 	bximage -q -func=create -hd=16M -imgmode=flat -sectsize=512 $@
@@ -53,30 +55,34 @@ endif
 #	把system.bin 写 8 个512字节 到img中， 跳过前10个扇区（0-9），从第10个扇区开始写 [0x1400, ...) 注意不是0x2000
 	dd if=$(BUILD_KERNEL)/system.bin of=$@ bs=512 count=200 seek=10
 
+
+###################################################### 0. 编译boot 和loader
 $(BUILD_BOOT)/%.bin: $(SRC_BOOT)/%.asm
 #@echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
 	nasm $< -o $@
 
+###################################################### 4. 把 i386pe 的代码段单独拿出来
 $(BUILD_KERNEL)/system.bin: $(BUILD_KERNEL)/kernel.bin
 	objcopy -O binary $< $@
 
+###################################################### 3. asm 和 c 链接到一起
 $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o \
 							$(BUILD_KERNEL)/main.o
-# 这里链接到了汇编和c
+# 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
 	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
+###################################################### 1. 从 asm 编译出 .o
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.asm
 # @echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
-	nasm -f win32 $< -o $@			
-# elf32 ???
-
+	nasm -f win32 $< -o $@
+###################################################### 2. 从 .c 编译出 .o
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.c
 #@echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
 	$(CC) $(CFLAG) $(DEBUG) $(INCLUDE) -c $< -o $@
-
+###################################################### 5. 这里拿出了符号表，不知道干什么
 $(BUILD_KERNEL)/system.map: $(BUILD_KERNEL)/kernel.bin
 	nm $< | sort > $@
 

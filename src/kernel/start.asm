@@ -7,6 +7,7 @@
 _start:
 
                         ; mov byte [0xb8000], 'K'
-    call _kernel_init   ; 保护模式下的call
+    ; xchg bx, bx
+    call _kernel_init   ; 保护模式下的call, 不需要用 selector 的形式吗
 
     jmp $

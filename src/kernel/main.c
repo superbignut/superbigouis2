@@ -1,5 +1,4 @@
 #include "os.h"
-
 int magic = OS_MAGIC;
 
 char msg[] = "Running C Code...";
