@@ -10,9 +10,9 @@
 
 1. asm 编译到 .o
 
-        nasm -f elf32 $< -o $@
+        nasm -f win32 $< -o $@
 
-    其中 -f elf32 是编译到 32位的意思, 编译后 可以用 nm 命令 查看.o文件的符号表：
+    其中 -f win32 是编译到 32位的意思, 编译后 可以用 nm 命令 查看.o文件的符号表：
 
                 λ nm -a ..\superbigouis2\build\kernel\start.o
                 00000000 t .text
@@ -24,9 +24,16 @@
 
     还可以使用 objdemp / readelf 查看.o文件的更多信息, 内容有点多， 先略过
 
+    objdump 的话 使用 -x 参数 可以显示最多的内容
+
+    这里在用nasm 编译完发现链接不起来，分别查看符号表，发现本来c文件中的函数名字没有以下划线开头，编译出的.o却带着下划线，
+    因此还需要把asm中的函数加上下划线，才能正确链接起来
+
 
 2. start.o  和 main.o 链接成 kernel.bin
 
-        ld.gold -m elf_i386 -static $^ -o $@ -Ttext $(ENTRY_POINT)
+        ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
-    这里我是发现的的windows中ld 没有 elf_i386的选项所以才用的同样是MinGW的ld_gold, 
+    + 这里的 static 指的是 把所有的能链接的全部链接成静态文件，据说会导致文件体积膨胀
+
+    + -Ttext 则是指定了 代码段 .text的首地址， 有点类似 nasm 中的 org 的作用

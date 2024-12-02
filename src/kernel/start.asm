@@ -1,4 +1,4 @@
-[bits 32]
+    [bits 32]
 
 
     extern _kernel_init ; windows 的函数需要加 "_"
