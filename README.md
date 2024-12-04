@@ -12,6 +12,7 @@ Tools:
 + [dd for windows](http://www.chrysocome.net/dd)
 + [cmder](https://cmder.app/)
 + [MinGW](https://en.wikipedia.org/wiki/MinGW)
++ [QEMU](https://www.qemu.org/)
 ---
 
 Tricks:

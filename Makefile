@@ -26,12 +26,18 @@ INCLUDE := -I./src/include # 头文件
 
 CC = gcc
 
-.PHONY: bochs, clean
+.PHONY: bochs clean qemu qemug
 
 bochs: $(BUILD)/master.img
 # 启动bochs
 # @echo $(CFLAG)
 	bochsdbg -q -f ./bochsrc 
+
+qemu: $(BUILD)/master.img
+	qemu-system-i386 -m 32M -boot c -hda $<
+
+qemu-debug: $(BUILD)/master.img
+	qemu-system-i386 -s -S -m 32M -boot c -hda $<	
 
 # boot.bin -> boot.asm
 # loader.bin -> loader.asm
@@ -39,7 +45,7 @@ bochs: $(BUILD)/master.img
 # 
 $(BUILD)/master.img: $(BUILD_BOOT)/boot.bin \
 					 $(BUILD_BOOT)/loader.bin \
-					 $(BUILD_KERNEL)/system.bin \
+					 $(BUILD_KERNEL)/system.bin 
 
 #$(BUILD_KERNEL)/system.map
 
@@ -64,7 +70,7 @@ $(BUILD_BOOT)/%.bin: $(SRC_BOOT)/%.asm
 
 ###################################################### 4. 把 i386pe 的代码段单独拿出来
 $(BUILD_KERNEL)/system.bin: $(BUILD_KERNEL)/kernel.bin
-	objcopy -O binary $< $@
+	objcopy -O binary $< $@	
 
 ###################################################### 3. asm 和 c 链接到一起
 $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o \
@@ -76,7 +82,7 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o \
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.asm
 # @echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
-	nasm -f win32 $< -o $@
+	nasm -f win32 $(DEBUG) $< -o $@
 ###################################################### 2. 从 .c 编译出 .o
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.c
 #@echo $(dir $@)

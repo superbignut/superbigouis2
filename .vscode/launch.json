@@ -1,0 +1,56 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name":"types gdb",
+            "type": "cppdbg",
+            "request":"launch",
+            "program": "${workspaceFolder}\\types.exe",
+            "MIMode": "gdb",
+            "miDebuggerPath":"C:\\Program Download\\MinGW-New\\mingw64\\bin\\gdb.exe",
+            "cwd":"${workspaceFolder}",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask":"C/C++: gcc.exe build active file"
+        },
+
+        {
+            "name":"qemu gdb",
+            "type": "cppdbg",
+            "request":"launch",
+            "program": "${workspaceFolder}\\build\\kernel\\kernel.bin",
+            "MIMode": "gdb",
+            "args": [
+            ],
+            "miDebuggerServerAddress": "localhost:1234",
+            "cwd":"${workspaceFolder}\\src\\kernel",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath":"C:\\Program Download\\MinGW\\mingw64\\bin\\gdb.exe",
+        }
+    ]
+}
