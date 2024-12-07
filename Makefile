@@ -26,7 +26,7 @@ INCLUDE := -I./src/include # 头文件
 
 CC = gcc
 
-.PHONY: bochs clean qemu qemug
+.PHONY: bochs clean qemu qemug test
 
 bochs: $(BUILD)/master.img
 # 启动bochs
@@ -94,3 +94,9 @@ $(BUILD_KERNEL)/system.map: $(BUILD_KERNEL)/kernel.bin
 
 clean:
 	rm -r $(BUILD)/
+
+test.s: .\src\test\test.c
+	$(CC) -m32 -S $< \
+	-fno-asynchronous-unwind-tables \
+	-fno-ident \
+	-o $@

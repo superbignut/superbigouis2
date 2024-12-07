@@ -6,13 +6,13 @@
     "configurations": [
 
         {
-            "name":"types gdb",
+            "name":"test gdb",
             "type": "cppdbg",
             "request":"launch",
-            "program": "${workspaceFolder}\\types.exe",
+            "program": "${workspaceFolder}\\test.exe",
             "MIMode": "gdb",
             "miDebuggerPath":"C:\\Program Download\\MinGW-New\\mingw64\\bin\\gdb.exe",
-            "cwd":"${workspaceFolder}",
+            "cwd":"${workspaceFolder}",                                                 // 不确定为什么这里就可以找打目录呢
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -25,7 +25,29 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask":"C/C++: gcc.exe build active file"
+            "preLaunchTask":"gcc asm"   // 这里得改成 c 或者 asm 对应的task
+        },
+        {
+            "name":"types gdb",
+            "type": "cppdbg",
+            "request":"launch",
+            "program": "${workspaceFolder}\\types.exe",
+            "MIMode": "gdb",
+            "miDebuggerPath":"C:\\Program Download\\MinGW-New\\mingw64\\bin\\gdb.exe",
+            "cwd":"${workspaceFolder}",                                                 // 不确定为什么这里就可以找打目录呢
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask":"C/C++: gcc.exe build active file"   // 这里得改成 c 或者 asm 对应的task
         },
 
         {
@@ -34,10 +56,8 @@
             "request":"launch",
             "program": "${workspaceFolder}\\build\\kernel\\kernel.bin",
             "MIMode": "gdb",
-            "args": [
-            ],
             "miDebuggerServerAddress": "localhost:1234",
-            "cwd":"${workspaceFolder}\\src\\kernel",
+            "cwd":"${workspaceFolder}\\src\\kernel",        // 这里要写被 打断点 的文件 的文件夹， 要不然 vscode 只知道文件名 main.c 但是不知道去哪里照这个文件
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -50,7 +70,9 @@
                     "ignoreFailures": true
                 }
             ],
-            "miDebuggerPath":"C:\\Program Download\\MinGW\\mingw64\\bin\\gdb.exe",
+            "miDebuggerPath":"C:\\Program Download\\MinGW\\mingw64\\bin\\gdb.exe",  // 这里有问题 可以换换 mingw 的版本  
+                                                                                    // 使用ok的 gdb 是 GNU gdb (GDB) 8.1 
+                                                                                    // GNU gdb (GDB) 11.2 就会报错 
         }
     ]
 }

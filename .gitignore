@@ -17,3 +17,5 @@ x86-asm/test/
 /build
 *.code-workspace
 *.exe
+test.*
+types.s
