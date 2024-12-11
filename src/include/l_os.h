@@ -1,5 +1,5 @@
-#ifndef OS_H_
-#define OS_H_
+#ifndef LOS_H_
+#define LOS_H_
 
     #define OS_MAGIC 20241130
 

@@ -1,5 +1,5 @@
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef LTYPES_H_
+#define LTYPES_H_
 
 #define EOF -1
 #define NULL 0
