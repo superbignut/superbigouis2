@@ -1,0 +1,34 @@
+	.file	"test.c"
+	.text
+	.globl	_add
+	.def	_add;	.scl	2;	.type	32;	.endef
+_add:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$4, %esp
+	movl	8(%ebp), %edx
+	movl	12(%ebp), %eax
+	addl	%edx, %eax
+	movl	%eax, -4(%ebp)
+	movl	-4(%ebp), %eax
+	leave
+	ret
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$20, %esp
+	call	___main
+	movl	$1, -4(%ebp)
+	movl	$2, -8(%ebp)
+	movl	-8(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	-4(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_add
+	movl	%eax, -12(%ebp)
+	movl	$0, %eax
+	leave
+	ret

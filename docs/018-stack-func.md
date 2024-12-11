@@ -75,3 +75,62 @@ _main:
 
     -exec display/8xw $sp # 这个命令可以从 debug console 中 help 查看， google 基本查不到
 ```
+
+
++ 栈帧
+
+如果在makefile 中开启栈帧（也就是去掉下面的gcc 参数）
+
+		-fomit-frame-pointer \
+
+则 不论是在main函数还是 add 函数 的开头和结尾都会加上 
+
+
+		pushl	%ebp
+		movl	%esp, %ebp
+		...
+
+		...
+
+		leave
+并且 很不一样的地方是， 开启栈帧后的代码 ，不再是在 esp 之上进行偏移了，而是，在ebp上做偏移，这个很不一样：
+
+```asm
+	.file	"test.c"
+	.text
+	.globl	_add
+	.def	_add;	.scl	2;	.type	32;	.endef
+_add:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$4, %esp				; 不管局部变量多少，都不影响下面的使用 ebp 来寻找传递的参数， 跳过 ebp+0 的栈帧 和 ebp+4 的 eip , +8是第一个参数 +12 是第二个
+	movl	8(%ebp), %edx			; ebp之上做偏移
+	movl	12(%ebp), %eax
+	addl	%edx, %eax
+	movl	%eax, -4(%ebp)
+	movl	-4(%ebp), %eax
+	leave
+	ret
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$20, %esp
+	call	___main
+	movl	$1, -4(%ebp)			; ebp 之上 做偏移
+	movl	$2, -8(%ebp)
+	movl	-8(%ebp), %eax	
+	movl	%eax, 4(%esp)
+	movl	-4(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_add
+	movl	%eax, -12(%ebp)
+	movl	$0, %eax
+	leave
+	ret
+```
+
++ 这里接着 之前的 call 的时候 把 call 的下一条指令入栈之后，由于 add 函数中又进行了 push ebp 的操作（也就是保存了上一个函数的栈底）， 所以如果还是用esp 来
+做偏移 其实中间又多了一个内容，因此，在申请栈空间之前，先用ebp 存储 最初的栈顶 esp ，再去变化esp，进而使用 ebp 来进行 寻找参数 是合理的。
