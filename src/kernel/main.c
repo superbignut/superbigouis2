@@ -13,11 +13,11 @@ void kernel_init(){
         video[(i+320) * 2] = msg[i];   
     }  
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH); // 高地址索引
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX); // 高地址索引
 
     write_byte_to_vga(CRT_DATA_REG_PORT, 0);
     
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW); // 低地址索引
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX); // 低地址索引
     
     write_byte_to_vga(CRT_DATA_REG_PORT, 100);
 

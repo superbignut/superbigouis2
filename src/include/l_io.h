@@ -13,8 +13,8 @@
 #define CRT_DATA_REG_PORT 0x3d5
 #define Input_Output_Address_Select_PORT 0x3cc          // 判断是不是0x3d4 最后一位需要是1
 
-#define CRT_CUSOR_HIGH 0xe
-#define CRT_CUSOR_LOW 0xf
+#define CRT_CUSOR_HIGH_INDEX 0xe
+#define CRT_CUSOR_LOW_INDEX 0xf
 
 
 /// @brief 给定端口， 读8位
