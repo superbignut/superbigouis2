@@ -98,5 +98,8 @@ clean:
 test.s: .\src\test\test.c
 	$(CC) -m32 -S $< \
 	-fno-asynchronous-unwind-tables \
+	-mpreferred-stack-boundary=2 \
+	-fomit-frame-pointer \
 	-fno-ident \
 	-o $@
+
