@@ -75,7 +75,8 @@ $(BUILD_KERNEL)/system.bin: $(BUILD_KERNEL)/kernel.bin
 ###################################################### 3. asm 和 c 链接到一起
 $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o \
 							$(BUILD_KERNEL)/main.o	\
-							$(BUILD_KERNEL)/l_io.o	
+							$(BUILD_KERNEL)/l_io.o	\
+							$(BUILD_KERNEL)/l_string.o
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
 	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
