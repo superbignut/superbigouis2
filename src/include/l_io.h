@@ -8,13 +8,25 @@
 
 #include "l_types.h"
 
+/// 用于判断CRT地址数据寄存器的0x3X4的X
+#define Miscellaneous_Output_Register 0x3CC          
 
+/// CRT 数据、地址寄存器
 #define CRT_ADDR_REG_PORT 0x3d4
 #define CRT_DATA_REG_PORT 0x3d5
-#define Input_Output_Address_Select_PORT 0x3cc          // 判断是不是0x3d4 最后一位需要是1
 
-#define CRT_CUSOR_HIGH_INDEX 0xe
-#define CRT_CUSOR_LOW_INDEX 0xf
+#define CRT_START_ADDR_HIGH_INDEX 0xC
+#define CRT_START_ADDR_LOW_INDEX 0xD
+#define CRT_CUSOR_HIGH_INDEX 0xE
+#define CRT_CUSOR_LOW_INDEX 0xF
+
+
+/// VGA图形 数据、地址寄存器
+#define VGA_GRAPHICS_ADDR_REG_PORT 0x3CE
+#define VGA_GRAPHICS_DATA_REG_PORT 0x3CF
+
+/// 用于查看VGA的内存位置和大小
+#define Memory_Map_Select_INDEX 0x06   
 
 
 /// @brief 给定端口， 读8位

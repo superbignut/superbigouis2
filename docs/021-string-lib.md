@@ -52,3 +52,31 @@ _add:
 从这里看到，原来0xb8000的设定是在显卡的寄存器中指定的，感觉还挺奇怪的，我还以为这个配置应该是cpu来指定的，那么在与 int 0x10 这个中断结合起来的话，
 
 应该就是 这个bios 中断 修改了 VGA 的寄存器，进而进入了80*25的文本显示模式
+
+
+
+
+[FreeVGA](http://www.osdever.net/FreeVGA/home.htm)
+
+CRT 地址寄存器 0x3D4
+CRT 数据寄存器 0x3D5
+CRT 光标位置 高位 0xE
+CRT 光标位置 低位 0xF
+
+这里在输入输出的基础上 增加了
+
+CRT 显示开始的位置 高位 0xC
+CRT 显示开始的位置 低位 0xD
+
+> This contains the bits 7-0 of the Start Address field. The upper 8 bits are specified by the Start Address High Register. The Start Address field specifies the display memory address of the upper left pixel or character of the screen. Because the standard VGA has a maximum of 256K of memory, and memory is accessed 32 bits at a time, this 16-bit field is sufficient to allow the screen to start at any memory address. Normally this field is programmed to 0h, except when using virtual resolutions, paging, and/or split-screen operation. Note that the VGA display will wrap around in display memory if the starting address is too high. (This may or may not be desirable, depending on your intentions.)
+
+指的是VGA支持很大的显存，因此，不一定要使用0作为 起始地址，因此使用16位来给开始显示的位置进行定位
+
+> Memory Map Select
+This field specifies the range of host memory addresses that is decoded by the VGA hardware and mapped into display memory accesses.  The values of this field and their corresponding host memory ranges are:
+	00b -- A0000h-BFFFFh (128K region)
+	01b -- A0000h-AFFFFh (64K region)
+	10b -- B0000h-B7FFFh (32K region)
+	11b -- B8000h-BFFFFh (32K region)
+
+这里具体是去读VGA的 Memory Map Select 位， 我读出来的是 14（0b0000_1110） 所以我的地址起始 0xB8000 大小是 32K=0x 8000
