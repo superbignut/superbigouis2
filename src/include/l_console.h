@@ -4,7 +4,7 @@
 #include "l_io.h"
 
 #define MEM_ADDR_BASE 0xB8000
-#define MEM_ADDR_SIZE 0x8000
+#define MEM_ADDR_SIZE 0x8000                            // 32k
 #define MEM_ADDR_END (MEM_ADDR_BASE + MEM_ADDR_SIZE)
 
 #define SCREEN_WIDTH 80             // 可显示字符宽度
@@ -23,8 +23,10 @@
 #define ASCII_FF  0x0C      // Form Feed
 #define ASCII_CR  0x0D      // Carriage Return 
 #define ASCII_DEL 0x7F      // Delete
+#define ASCII_SP  0x20
 
-
+#define CONSOLE_SPACE 0x0720
+#define CONSOLE_DEFAULT_TEXT_ATTR 0x07
 
 void console_init();
 

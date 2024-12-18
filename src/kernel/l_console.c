@@ -3,20 +3,20 @@
 
 struct _console
 {
-    uint32_t screen_pos;
-    uint32_t cursor_pos;
+    uint32_t screen_pos;        // 0xB8000 开始的绝对坐标 字节为单位
+    uint32_t cursor_pos;        // 0xB8000 开始的绝对坐标 字节为单位
     
-    uint8_t x;
-    uint8_t y;
+    uint8_t cursor_x;           // 0 开始 2字节为单位 相对坐标
+    uint8_t cursor_y;           // 0 开始 2字节为单位 相对坐标
 
-    uint8_t attr;
-    uint16_t space;
+    // uint8_t attr;
+    // uint16_t space;
 };
 
 struct _console console;
 
 
-/// @brief 找到屏幕开始的地方， 使用内存中的真实地址进行保存
+/// @brief 找到屏幕开始的地方， 真实地址保存到console
 static void get_screen(){
 
     write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
@@ -30,36 +30,90 @@ static void get_screen(){
     console.screen_pos += MEM_ADDR_BASE; //  屏幕显示的字符在内存中真正开始的位置
 }
 
-/// @brief 设置屏幕开始的位置
-static void set_screen(){
-
+/// @brief 设置屏幕位置为console 中的地址
+/// @param _pos >= 0xb8000 的值 以 字节为单位
+static void update_screen(){
+    //console.screen_pos = _pos;
     write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
 
     write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> 1) & 0xff);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> 1) & 0xff);
 }
 
 
-void console_init(){
-    console.screen_pos = 0;             // 屏幕开始显示的真实地址（内存中的真实地址）
-    console.cursor_pos = 0;
-    console.x = 0;
-    console.y = 0;
-    console.attr = 7;
-    console.space = 0x0720;
-    console_clear();
-    
-    console.screen_pos = MEM_ADDR_BASE +  SCREEN_WIDTH_BYTE_SIZE;
-    set_screen();
-}
+/// @brief 找到光标位置, 更新 cursor_x cursor_y cursor_pos
+///        这里需要注意的地方是，因为屏幕起始的位置是可以调整的，但是光标始终是以0xb8000 为起点
+///        因此需要减一下
+static void get_cursor(){
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
+    console.cursor_pos = read_byte_from_vga(CRT_DATA_REG_PORT) << 8;
 
-void console_clear(){
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
+    console.cursor_pos |= read_byte_from_vga(CRT_DATA_REG_PORT);
+
     get_screen();
+
+    console.cursor_pos << 1;
+    console.cursor_pos += MEM_ADDR_BASE;
+
+    uint32_t cursor_delta = (console.cursor_pos - console.screen_pos) >> 1;
+
+    console.cursor_x = (uint8_t)(cursor_delta / SCREEN_WIDTH);
+    console.cursor_y = (uint8_t)(cursor_delta % SCREEN_WIDTH);
+
 }
 
+/// @brief 设置光标位置
+/// @param _pos >= 0xb8000 的值 以 字节为单位
+static void update_cursor(){
+    // console.cursor_pos = _pos;
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
+
+    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> 1) & 0xff);
+}
+
+
+
+/// @brief 屏幕和光标都设置到起点 0xb8000
+void console_clear(){
+    console.screen_pos = MEM_ADDR_BASE;
+    console.cursor_pos = MEM_ADDR_BASE;
+    update_screen();
+    update_cursor();
+
+    uint16_t *ptr = (uint16_t *)MEM_ADDR_BASE;  //  每次指向2个字节
+
+    while (ptr < MEM_ADDR_END)
+    {
+        *ptr++ = CONSOLE_SPACE;                 // 赋值空格
+    }
+}
+
+/// @brief 像屏幕写字符
+/// @param buf 
+/// @param count 
 void console_write(char *buf, uint32_t count){
+    char ch;
+    char *ptr = (char *)(console.cursor_pos);
+    while(count--){
+        ch = *buf++;
 
+        *ptr++ = ch;
+        *ptr++ = CONSOLE_DEFAULT_TEXT_ATTR;
+        console.cursor_pos += 2;
+        console.cursor_x += 1;
+    }
+    update_cursor();
+}
 
+/// @brief 暂时只有屏幕清空
+void console_init(){
 
+    char a[] = "Console Init Successfully!";
+    console_clear();    
+    console_write(a, sizeof(a));
+    
 }
