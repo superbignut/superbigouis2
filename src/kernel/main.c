@@ -6,8 +6,6 @@
 
 int magic = OS_MAGIC;
 
-
-
 void hello_c_code(){
     char msg[] = "Running C Code...";
     char *video = (char *)0xb8000;

@@ -92,6 +92,44 @@ void console_clear(){
     }
 }
 
+
+/// @brief 
+static void console_bs(){
+    if(console.cursor_x > 0){
+
+        console.cursor_pos -= 2;
+        console.cursor_x -= 1;
+
+        uint16_t *ptr = (uint16_t *)console.cursor_pos;
+        *ptr = CONSOLE_SPACE;
+        update_cursor();
+    }
+    
+}
+
+
+/// @brief 向下一行
+static void console_lf(){
+    if(console.cursor_y < SCREEN_HEIGHT - 1){
+
+        console.cursor_pos += SCREEN_WIDTH_BYTE_SIZE;
+        console.cursor_y += 1;
+
+        update_cursor();
+        return;
+    }
+}
+
+/// @brief 回到行首
+static void console_cr(){
+    // uint32_t temp1 = MEM_ADDR_BASE + console.cursor_y * SCREEN_WIDTH_BYTE_SIZE;
+    console.cursor_pos = console.cursor_pos - (console.cursor_x << 1);
+    console.cursor_x = 0;
+    update_cursor();
+}
+
+
+
 /// @brief 像屏幕写字符
 /// @param buf 
 /// @param count 
@@ -101,10 +139,28 @@ void console_write(char *buf, uint32_t count){
     while(count--){
         ch = *buf++;
 
-        *ptr++ = ch;
-        *ptr++ = CONSOLE_DEFAULT_TEXT_ATTR;
-        console.cursor_pos += 2;
-        console.cursor_x += 1;
+        switch (ch)
+        {
+        case ASCII_NUL:
+            break;
+        case ASCII_BS:
+            console_bs();
+            break;
+        default:
+            if(console.cursor_x >= SCREEN_WIDTH){
+                //console.cursor_x -= SCREEN_WIDTH;
+                console_cr();
+                console_lf();
+            }
+            
+            *ptr++ = ch;
+            *ptr++ = CONSOLE_DEFAULT_TEXT_ATTR;
+            console.cursor_pos += 2;
+            console.cursor_x += 1;
+            break;
+        }
+
+        
     }
     update_cursor();
 }
@@ -112,8 +168,12 @@ void console_write(char *buf, uint32_t count){
 /// @brief 暂时只有屏幕清空
 void console_init(){
 
-    char a[] = "Console Init Successfully!";
+    char a[] = "1";
     console_clear();    
-    console_write(a, sizeof(a));
+    for(int i =0; i<=80; ++i){
+        console_write(a, 1);
+    }
+    
+    
     
 }
