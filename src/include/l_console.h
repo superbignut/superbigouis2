@@ -7,12 +7,13 @@
 #define MEM_ADDR_SIZE 0x8000                            // 32k
 #define MEM_ADDR_END (MEM_ADDR_BASE + MEM_ADDR_SIZE)
 
-#define SCREEN_WIDTH 80             // 可显示字符宽度
-#define SCREEN_HEIGHT 25            // 可显示字符高度
+#define SCREEN_CHAR_WIDTH 80             // 可显示字符宽度
+#define SCREEN_CHAR_HEIGHT 25            // 可显示字符高度
 
-#define SCREEN_WIDTH_BYTE_SIZE (SCREEN_WIDTH * 2)       // 字节数
-#define SCREEN_HEIGHT_BYTE_SIZE (SCREEN_HEIGHT * 2)
 
+#define SCREEN_WIDTH_BYTE_SIZE (SCREEN_CHAR_WIDTH * 2)       // 字节数
+#define SCREEN_HEIGHT_BYTE_SIZE (SCREEN_CHAR_HEIGHT * 2)
+#define SCREEN_SIZE_BYTE_SIZE (SCREEN_HEIGHT_BYTE_SIZE * SCREEN_WIDTH_BYTE_SIZE)
 
 #define ASCII_NUL 0x00      // NULL
 #define ASCII_ESC 0x1B      // ESC

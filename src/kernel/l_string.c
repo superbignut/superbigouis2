@@ -8,7 +8,7 @@
 /// @return 
 char *string_copy(char *dest, const char *src){
     char *ptr = dest;
-    while(true){
+    while(True){
         *ptr++ = *src;      // ++ suffix 的优先级最高 > * dereference
         *ptr = *src;
         if(*src++ == EOS){
@@ -49,7 +49,7 @@ char *strint_cat(char *dest, const char *src){
         ptr++;
     }         
 
-    while(true){
+    while(True){
         *ptr++ = *src;
         if(*src++ == EOS){
             return dest;
@@ -81,7 +81,7 @@ int string_compare(const char* lhs, const char* rhs){
 /// @return 
 char *string_find_char_first(const char* str, int ch){
     char *ptr = (char*)str;
-    while(true){
+    while(True){
         if(*ptr == ch){
             return ptr;
         }
@@ -95,7 +95,7 @@ char *string_find_char_last(const char* str, int ch){
 
     char *ptr = (char*)str;
     char *ans = NULL;
-    while(true){
+    while(True){
         if(*ptr == ch){
             ans = ptr;
         }

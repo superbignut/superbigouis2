@@ -1,5 +1,5 @@
 #include "l_console.h"
-
+#include "l_string.h"
 
 struct _console
 {
@@ -35,10 +35,10 @@ static void get_screen(){
 static void update_screen(){
     //console.screen_pos = _pos;
     write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
 
     write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> 1) & 0xff);
+    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> 1) & 0xff);
 }
 
 
@@ -59,8 +59,8 @@ static void get_cursor(){
 
     uint32_t cursor_delta = (console.cursor_pos - console.screen_pos) >> 1;
 
-    console.cursor_x = (uint8_t)(cursor_delta / SCREEN_WIDTH);
-    console.cursor_y = (uint8_t)(cursor_delta % SCREEN_WIDTH);
+    console.cursor_x = (uint8_t)(cursor_delta / SCREEN_CHAR_WIDTH);
+    console.cursor_y = (uint8_t)(cursor_delta % SCREEN_CHAR_WIDTH);
 
 }
 
@@ -86,12 +86,37 @@ void console_clear(){
 
     uint16_t *ptr = (uint16_t *)MEM_ADDR_BASE;  //  每次指向2个字节
 
-    while (ptr < MEM_ADDR_END)
+    while (ptr < (uint16_t *)MEM_ADDR_END)
     {
         *ptr++ = CONSOLE_SPACE;                 // 赋值空格
     }
 }
 
+/// @brief 在屏幕最后一行换行时触发, 滚动前清空
+static void scroll_up(){
+
+    //  屏幕外的一整行 没有超限
+    if(console.screen_pos + SCREEN_SIZE_BYTE_SIZE + SCREEN_WIDTH_BYTE_SIZE < MEM_ADDR_END){
+        
+        //  先清空
+        uint16_t *ptr = (uint16_t *)(console.screen_pos + SCREEN_SIZE_BYTE_SIZE);       //  取下一个屏幕的开始指针
+        for(size_t i = 0; i < SCREEN_CHAR_WIDTH; ++i){
+            *ptr++ = CONSOLE_SPACE;                                                     //  下一个屏幕清空
+        }
+
+        console.screen_pos += SCREEN_WIDTH_BYTE_SIZE;
+        console.cursor_pos += SCREEN_WIDTH_BYTE_SIZE;
+    }
+    else{
+        //  超限，切到 MEM_BASE
+        memory_copy((void *)MEM_ADDR_BASE, (void *)console.screen_pos, SCREEN_SIZE_BYTE_SIZE);  //  当前屏幕拷贝到初始屏幕
+        console.cursor_pos -= (console.screen_pos - MEM_ADDR_BASE);             //  这里其实没换行
+        console.screen_pos = MEM_ADDR_BASE;                                     //  只进行切换
+
+    }
+    update_screen();
+    update_cursor();    
+}
 
 /// @brief 
 static void console_bs(){
@@ -110,7 +135,7 @@ static void console_bs(){
 
 /// @brief 向下一行
 static void console_lf(){
-    if(console.cursor_y < SCREEN_HEIGHT - 1){
+    if(console.cursor_y < SCREEN_CHAR_HEIGHT - 1){
 
         console.cursor_pos += SCREEN_WIDTH_BYTE_SIZE;
         console.cursor_y += 1;
@@ -118,6 +143,7 @@ static void console_lf(){
         update_cursor();
         return;
     }
+    scroll_up();
 }
 
 /// @brief 回到行首
@@ -126,6 +152,12 @@ static void console_cr(){
     console.cursor_pos = console.cursor_pos - (console.cursor_x << 1);
     console.cursor_x = 0;
     update_cursor();
+}
+
+/// @brief 
+static void console_del(){
+    // uint32_t temp1 = MEM_ADDR_BASE + console.cursor_y * SCREEN_WIDTH_BYTE_SIZE;
+    // Todo
 }
 
 
@@ -146,8 +178,15 @@ void console_write(char *buf, uint32_t count){
         case ASCII_BS:
             console_bs();
             break;
+        case ASCII_DEL:
+            console_del();
+            break;
+        case ASCII_LF:
+            console_lf();
+            console_cr();
+            break;
         default:
-            if(console.cursor_x >= SCREEN_WIDTH){
+            if(console.cursor_x >= SCREEN_CHAR_WIDTH){
                 //console.cursor_x -= SCREEN_WIDTH;
                 console_cr();
                 console_lf();
@@ -168,12 +207,12 @@ void console_write(char *buf, uint32_t count){
 /// @brief 暂时只有屏幕清空
 void console_init(){
 
-    char a[] = "1";
+    char c[] = "2\n";
     console_clear();    
-    for(int i =0; i<=80; ++i){
-        console_write(a, 1);
+    while (True)
+    {
+        console_write(c, 2);
     }
     
-    
-    
+
 }
