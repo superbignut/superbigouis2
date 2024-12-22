@@ -15,9 +15,7 @@ static void hello_c_code(){
     }
 }
 
-
 void kernel_init(){
-
     hello_c_code();
     console_init();
 }

@@ -28,8 +28,8 @@ p+=2 也是在类型的基础上执行的加法，而不是 绝对的地址+2
 typedef char * va_list;
 
 #define va_start(ap, parmN) (ap = (va_list)&parmN + sizeof(parmN))
-#define va_arg(ap, type) (*(type *)((ap += sizeof(type)) - sizeof(type)))
-#define va_end(ap) (ap = (va_list)0)
+#define va_arg(ap, type) (*(type *)((ap += sizeof(type)) - sizeof(type)))       // bug ： type -> char*
+#define va_end(ap) (ap = (va_list)0)        
 
 
 #endif
@@ -62,4 +62,29 @@ void test_args(int cnt, ...){
 test_args(5, 1 , 0xaa, 0x55, 2, 0);
 ```
 
+
+```cpp
+char a = '1';
+
+char b= '2';
+
+char c = '3';
+
+void test_arg(int n, ...){
+
+    va_list ls;
+    char tmp;
+    va_start(ls, n);
+    while(n--){
+        tmp = va_arg(ls, char);
+    }
+    va_end(ls);
+}
+
+test_arg(3, a, b, c);
+
+这里就可以测试出来使用 sizeof(type) 的写法是错误的，原因应该是栈的对齐，每次都是 4个字节，即使是char类型的参数也是一样的
+
+因此 up使用 sizeof(char *) 是正确的写法
+```
 
