@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "l_os.h": "c",
+        "l_console.h": "c",
+        "l_stdargs.h": "c"
+    }
+}

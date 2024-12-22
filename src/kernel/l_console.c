@@ -101,7 +101,7 @@ static void scroll_up(){
         //  先清空
         uint16_t *ptr = (uint16_t *)(console.screen_pos + SCREEN_SIZE_BYTE_SIZE);       //  取下一个屏幕的开始指针
         for(size_t i = 0; i < SCREEN_CHAR_WIDTH; ++i){
-            *ptr++ = CONSOLE_SPACE;                                                     //  下一个屏幕清空
+            *ptr++ = CONSOLE_SPACE;                                                     //  下一个行清空
         }
 
         console.screen_pos += SCREEN_WIDTH_BYTE_SIZE;
