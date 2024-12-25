@@ -5,13 +5,15 @@
 #define LSTDARGS_H_
 
 
-typedef char * va_list; // char *的使用使得 ++ 和 += 都是变化一个字节
+typedef char *va_list; // char *的使用使得 ++ 和 += 都是变化一个字节
 
-#define va_start(ap, parmN) (ap = (va_list)&parmN + sizeof(parmN))
+// 返回可变参数的首地址
+#define va_start(ap, fmt) (ap = (va_list)&fmt + sizeof(char *))                     // 指向可变参数的地址 + 一个指针的长度
 
-#define va_arg(ap, type) (*(type *)((ap += sizeof(char *)) - sizeof(char *)))      // 这里考虑到对齐的话，type 的使用是错误的
+// 每次移动首地址到下一个参数
+#define va_arg(ap, type) (*(type *)((ap += sizeof(char *)) - sizeof(char *)))       // 这里考虑到对齐的话，type 的使用是错误的
 
-
+// args指向空指针
 #define va_end(ap) (ap = (va_list)0)
 
 
