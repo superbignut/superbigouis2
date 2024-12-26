@@ -5,6 +5,8 @@
 #include "l_console.h"
 #include "l_stdargs.h"
 #include "l_printk.h"
+#include "l_assert.h"
+#include "l_debug.h"
 
 int magic = OS_MAGIC;
 
@@ -19,10 +21,6 @@ static void hello_c_code(){
 }
 
 
-void test(const char **fmt){
-    (*fmt)++;
-    return;
-}
 void kernel_init(){
 
     hello_c_code();
@@ -35,8 +33,15 @@ void kernel_init(){
 
     console_write(a, string_len(a));
 
+    assert(cnt == 4);
+
+    XBB;
+    DEBUGK("123\n");
+    DEBUGK("No error occoured!\n");
+    XBB;
+
     while(cnt--){
-        int b = printk("Hello operating system... %x %d\n", 0x123a, 123);
+        int b = printk("Hello operating system... %x %d\n", 0x1213a, 123);
         //break;
     }
 

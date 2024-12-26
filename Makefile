@@ -79,7 +79,9 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_string.o		\
 							$(BUILD_KERNEL)/l_console.o		\
 							$(BUILD_KERNEL)/l_vsprintf.o	\
-							$(BUILD_KERNEL)/l_printk.o	
+							$(BUILD_KERNEL)/l_printk.o		\
+							$(BUILD_KERNEL)/l_assert.o		\
+							$(BUILD_KERNEL)/l_debug.o
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
 	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
