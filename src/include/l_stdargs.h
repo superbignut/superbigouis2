@@ -4,6 +4,7 @@
 #ifndef LSTDARGS_H_
 #define LSTDARGS_H_
 
+#include "l_types.h"
 
 typedef char *va_list; // char *的使用使得 ++ 和 += 都是变化一个字节
 

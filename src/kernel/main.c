@@ -18,16 +18,26 @@ static void hello_c_code(){
     }
 }
 
+
+void test(const char **fmt){
+    (*fmt)++;
+    return;
+}
 void kernel_init(){
 
     hello_c_code();
 
     console_init();
 
-    int cnt = 10;
+    char *a = "123\n123\n";
+
+    int cnt = sizeof(a);
+
+    console_write(a, string_len(a));
 
     while(cnt--){
-        printk("Hello operating system...%d\n", cnt);
+        int b = printk("Hello operating system... %x %d\n", 0x123a, 123);
+        //break;
     }
 
 }

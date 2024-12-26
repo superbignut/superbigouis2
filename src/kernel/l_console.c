@@ -4,7 +4,11 @@
 struct _console
 {
     uint32_t screen_pos;        // 0xB8000 开始的绝对坐标 字节为单位
-    uint32_t cursor_pos;        // 0xB8000 开始的绝对坐标 字节为单位
+    union
+    {
+        uint32_t cursor_pos;        // 0xB8000 开始的绝对坐标 字节为单位
+        char *cursor_ptr;
+    };
     
     uint8_t cursor_x;           // 0 开始 2字节为单位 相对坐标
     uint8_t cursor_y;           // 0 开始 2字节为单位 相对坐标
@@ -167,7 +171,7 @@ static void console_del(){
 /// @param count 
 void console_write(char *buf, uint32_t count){
     char ch;
-    char *ptr = (char *)(console.cursor_pos);
+    // char *ptr = (char *)(console.cursor_pos);                        //  debug
     while(count--){
         ch = *buf++;
 
@@ -192,9 +196,10 @@ void console_write(char *buf, uint32_t count){
                 console_lf();
             }
             
-            *ptr++ = ch;
-            *ptr++ = CONSOLE_DEFAULT_TEXT_ATTR;
-            console.cursor_pos += 2;
+            *console.cursor_ptr++ = ch;                                 //  修改指针的同时修改 cursor_pos
+            *console.cursor_ptr++ = CONSOLE_DEFAULT_TEXT_ATTR;
+
+            // console.cursor_pos += 2;
             console.cursor_x += 1;
             break;
         }
