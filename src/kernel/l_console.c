@@ -212,12 +212,12 @@ void console_write(char *buf, uint32_t count){
 /// @brief 暂时只有屏幕清空
 void console_init(){
 
-    // char c[] = "2\n";
+    char _clear[] = "console init...\n";
     console_clear();    
     /* while (True)
     {
         console_write(c, 2);
     } */
-    
+    console_write(_clear, string_len(_clear));
 
 }

@@ -7,6 +7,7 @@
 #include "l_printk.h"
 #include "l_assert.h"
 #include "l_debug.h"
+#include "l_gdt.h"
 
 int magic = OS_MAGIC;
 
@@ -26,22 +27,13 @@ void kernel_init(){
     hello_c_code();
 
     console_init();
-
-    char *a = "123\n123\n";
-
-    int cnt = sizeof(a);
-
-    console_write(a, string_len(a));
-
-    assert(cnt == 4);
-
-    XBB;
-    DEBUGK("123\n");
-    DEBUGK("No error occoured!\n");
-    XBB;
+    
+    gdt_init();
+    
+    int cnt = 1;
 
     while(cnt--){
-        int b = printk("Hello operating system... %x %d\n", 0x1213a, 123);
+        int b = printk("Hello operating system...\n");
         //break;
     }
 

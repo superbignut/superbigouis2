@@ -18,7 +18,9 @@ CFLAG += -fno-pic 				# 不需要位置无关的代码
 CFLAG += -fno-pie 				# 不需要位置无关的可执行程序
 CFLAG += -nostdlib 				# 不需要标准库
 CFLAG += -fno-stack-protector 	# 不需要栈保护
-CFLAG += -v
+# CFLAG += -v
+# CFLAG += -M					# 头文件修改 GNU 官方解决方案
+# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 DEBUG := -g 					# 调试信息	
 # 栈保护和位置无关的代码应该是会在原有代码上插入一些修改信息，所以禁用掉
 # 头文件 和 内置函数 不需要也禁用掉
@@ -43,11 +45,10 @@ qemu-debug: $(BUILD)/master.img
 # loader.bin -> loader.asm
 # system.bin -> kernel.bin -> start.o -> start.asm
 # 
-$(BUILD)/master.img: $(BUILD_BOOT)/boot.bin \
-					 $(BUILD_BOOT)/loader.bin \
-					 $(BUILD_KERNEL)/system.bin 
-
-#$(BUILD_KERNEL)/system.map
+$(BUILD)/master.img: $(BUILD_BOOT)/boot.bin 	\
+					 $(BUILD_BOOT)/loader.bin 	\
+					 $(BUILD_KERNEL)/system.bin \
+					 $(BUILD_KERNEL)/system.map
 
 ifeq ("$(wildcard $(BUILD)/master.img)", "")
 # 创建硬盘镜像	
@@ -81,7 +82,8 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_vsprintf.o	\
 							$(BUILD_KERNEL)/l_printk.o		\
 							$(BUILD_KERNEL)/l_assert.o		\
-							$(BUILD_KERNEL)/l_debug.o
+							$(BUILD_KERNEL)/l_debug.o		\
+							$(BUILD_KERNEL)/l_gdt.o
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
 	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
