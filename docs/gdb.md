@@ -9,4 +9,4 @@ gdb指令
 
 + info register/stack 查看寄存器
 
-a
++ -exec display/16xw $sp 这个display命令好像就是会每次debug执行的时候都会刷一次

@@ -10,7 +10,7 @@ task_t *b = (task_t *)0x2000;                           //  相当于创建了�
 /// 切换到下一个函数
 extern void task_switch(task_t *next);
 
-/// @brief 创建一个进程 并在这个页的最高位写入进程信息（寄存器组），并更新栈顶指针
+/// @brief 创建一个进程 并在这个页的最高位写入进程信息（寄存器组），并更新页的前4个字节是栈顶的位置
 /// @param task 
 /// @param target 
 static void task_create(task_t *task, target_t target){
@@ -33,11 +33,12 @@ static void task_create(task_t *task, target_t target){
 /// @return 
 task_t *running_task(){
     asm volatile(
-        "movl %esp, %eax\n"
-        "andl $0xfffff000, %eax\n"
+        "movl %esp, %eax \n"
+        "andl $0xfffff000, %eax \n"
         );
 }
 
+/// @brief 判断当前的栈顶地址是 1 开头（1xxx）, 还是， 2 开头（2xxx）； 其实，printA之后就是1开头， printB之后就是2开头
 void schedule(){
     task_t *current = running_task();
     task_t *next = current == a ? b : a;
@@ -45,23 +46,30 @@ void schedule(){
                                                         //  汇编中保存的上下文 指的就是这里   1 
 }
 
+/// @brief 循环很关键
+/// @return 
 uint32_t thread_a(){
     while(True){
         printk("A");
         schedule();
                                                         //  汇编中保存的上下文，1 执行完之后 回到 2 
+        printk("C");
     }
 }
 
 
+/// @brief 同上
+/// @return 
 uint32_t thread_b(){
     while(True){
         printk("B");
         schedule();
+
+        printk("D");
     }
 }
 
-
+/// @brief 这个初始化，完成了AB任务切换的启动
 void task_init(){
     task_create(a, thread_a);
     task_create(b, thread_b);
