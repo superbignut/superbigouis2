@@ -83,7 +83,11 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_printk.o		\
 							$(BUILD_KERNEL)/l_assert.o		\
 							$(BUILD_KERNEL)/l_debug.o		\
-							$(BUILD_KERNEL)/l_gdt.o
+							$(BUILD_KERNEL)/l_gdt.o			\
+							$(BUILD_KERNEL)/l_task.o		\
+							$(BUILD_KERNEL)/l_schedule.o    
+							
+
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
 	ld -m i386pe -static $^ -o $@ -Ttext $(ENTRY_POINT)
 
@@ -91,7 +95,8 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.asm
 # @echo $(dir $@)
 	$(shell mkdir -p $(dir $@))
-	nasm -f win32 $(DEBUG) $< -o $@
+	nasm -f elf32 $(DEBUG) $< -o $@							
+# I can't understand why elf32 could be linked with ie86pe while win32 not.
 ###################################################### 2. 从 .c 编译出 .o
 $(BUILD_KERNEL)/%.o: $(SRC_KERNEL)/%.c
 #@echo $(dir $@)

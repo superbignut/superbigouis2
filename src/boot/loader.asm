@@ -126,7 +126,7 @@ protect_enable:
     ; xchg bx, bx
 
 
-    mov edi, 0x10000        ; 加载地址 0x1000
+    mov edi, 0x10000        ; 加载地址 0x10000
     mov ecx, 10             ; 第10个扇区开始读
     mov bl, 200             ; 总共读200个扇区
     

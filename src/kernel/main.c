@@ -8,33 +8,28 @@
 #include "l_assert.h"
 #include "l_debug.h"
 #include "l_gdt.h"
+#include "l_task.h"
 
-int magic = OS_MAGIC;
+void func(int t){
 
-static void hello_c_code(){
-    
-    char msg[] = "Running C Code...";
-    char *video = (char *)0xb8000;
-
-    for(int i=0; i< sizeof(msg); ++i){
-        video[(i+320) * 2] = msg[i];   
-    }
 }
-
-
 void kernel_init(){
-
-    hello_c_code();
 
     console_init();
     
     gdt_init();
-    
-    int cnt = 1;
+    // XBB;
+
+    int cnt = 10;
+
+    func(cnt);
+
 
     while(cnt--){
         int b = printk("Hello operating system...\n");
         //break;
     }
+
+    task_init();
 
 }
