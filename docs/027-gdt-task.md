@@ -84,7 +84,7 @@ i386
 
 1. 最开始 -> 第一次 A
 
-    这里保存上下文没什么用，但是切换栈顶会再最后 ret 的时候进入 thread_a 函数，去答应A，然后进入 schedule ，进而进入 task_switch
+    这里保存上下文没什么用，但是切换栈顶会再最后 ret 的时候进入 thread_a 函数，去打印A，然后进入 schedule ，进而进入 task_switch
 
 
 2. 第一次 A -> 第一次 B
@@ -104,41 +104,40 @@ i386
     这两段代码就是成对应的关系，存入上下文，和恢复上下文
 
 
-``` cpp
-uint32_t thread_a(){
-    while(True){
-        printk("A");
-        schedule();
-                                                        //  汇编中保存的上下文，1 执行完之后 回到 2 
-        printk("C");
+4. 补充
+    如果将代码改成这样就可以更好的体现出调度和保存上下文的含义，
+
+    最开始是A
+
+    进而是B
+
+    进而是 CA
+
+    进而是DB
+
+    然后是 CA DB 开始循环
+    ``` cpp
+    uint32_t thread_a(){
+        while(True){
+            printk("A");
+            schedule();
+                                                            //  汇编中保存的上下文，1 执行完之后 回到 2 
+            printk("C");
+        }
     }
-}
 
 
-/// @brief 同上
-/// @return 
-uint32_t thread_b(){
-    while(True){
-        printk("B");
-        schedule();
+    /// @brief 同上
+    /// @return 
+    uint32_t thread_b(){
+        while(True){
+            printk("B");
+            schedule();
 
-        printk("D");
+            printk("D");
+        }
     }
-}
-
-如果将代码改成这样就可以返现
-
-最开始是A
-
-进而是B
-
-进而是 CA
-
-进而是DB
-
-然后是 CA DB 开始循环
-
-```
+    ```
 
   
 ABI 有待补充
