@@ -3,7 +3,8 @@
 
 #include "l_types.h"
 
-typedef uint32_t target_t();                //  第一次见， 这是一个函数类型， 但一般都是要和 * 一起来表示 target_t* 一个函数指针
+typedef uint32_t (*target_t)();                 //  第一次见， 这是一个函数类型， 但一般都是要和 * 一起来表示 target_t* 一个函数指针
+                                                //  改成函数指针更好理解
 
 
 /// @brief 进程信息
