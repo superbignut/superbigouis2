@@ -9,6 +9,7 @@
 #include "l_debug.h"
 #include "l_gdt.h"
 #include "l_task.h"
+#include "l_interrupt.h"
 
 void func(int t){
 
@@ -30,6 +31,8 @@ void kernel_init(){
         //break;
     }
 
-    task_init();
+    // task_init();
+    interrupt_init();
+    
 
 }

@@ -185,6 +185,7 @@ void console_write(char *buf, uint32_t count){
         case ASCII_DEL:
             console_del();
             break;
+        // case ASCII_CR:       // 这里其实回车和换行应该是都可以的
         case ASCII_LF:
             console_lf();
             console_cr();

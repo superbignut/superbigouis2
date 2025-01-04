@@ -12,6 +12,9 @@ _start:
     ; xchg bx, bx
     call _kernel_init   ; 保护模式下的call, 不需要用 selector 的形式吗
 
+    ; xchg bx, bx
+    int 0x80            ; 调用中断处理函数，然后返回
+
     jmp $
 test_push_and_ret:   
 
