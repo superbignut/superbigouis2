@@ -136,5 +136,12 @@ Reserved	                    31 (0x1F)	    -	-	        No
 所以说 ， 那些 Error code 是 yes 的， 也就是在异常的时候cpu 会自动压入一个 错误码的吗？
 
     + 测试了一下，果然 int 一个没有的中断号， 据up 说是会触发 一般性保护异常，虽然不确定，但是栈中确实多压入了4个字节，我这里是 0x0402
+    
+    + 最开始没有把 错误的 vector 给传出来， 传出来之后就可以在 exception_handler 根据参数 打印不同的信息，可以发现 确实是 General Protection Fault
+
+
+nasm [宏](https://www.nasm.us/xdoc/2.15.05/html/nasmdoc4.html#section-4.3)
+
+具体的与处理结果 可以用 nasm -E 来查看
 
 手册里也可以看到，Error code 的结构也是有含义的，具体先不了解

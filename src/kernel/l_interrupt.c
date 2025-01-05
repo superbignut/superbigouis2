@@ -1,6 +1,7 @@
 #include "l_interrupt.h"
 #include "l_debug.h"
 #include "l_printk.h"
+#include "l_assert.h"
 
 gate_descriptor idt[IDT_SIZE];              //  中断描述符表
 
@@ -14,9 +15,42 @@ extern handler_t handler_entry_table[HANDLER_ENTRY_SIZE];       //  中断处理
 
 handler_t handler_table[IDT_SIZE];                              //  真正的处理函数位置
 
+/// @brief 用于显示异常信息
+static char *msg[]={
+    "Division Error",
+    "Debug",
+    "Non-maskable Interrupt",
+    "Breakpoint",
+    "Overflow",
+    "Bound Range Exceeded",
+    "Invalid Opcode",
+    "Device Not Available",
+    "Double Fault",
+    "Coprocessor Segment Overrun",
+    "Invalid TSS",
+    "Segment Not Present",
+    "Stack-Segment Fault",
+    "General Protection Fault",
+    "Page Fault",
+    "Reserved",
+    "x87 Floating-Point Exception",
+    "Alignment Check",
+    "Machine Check",
+    "SIMD Floating-Point Exception",
+    "Virtualization Exception",
+    "Control Protection Exception"
+};
+
+
+
 /// @brief 
-static void exception_handler(){
-    printk("yes...");
+static void exception_handler(int vector){
+    
+    if(vector < 22){
+        printk("Exception occured: %s\n", msg[vector]);
+    }else{
+        panic("Exception occured: %s\n", "Error code not defined.");
+    }
     while(True);
 }
 

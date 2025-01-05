@@ -17,7 +17,7 @@
 
 interrupt_entry:
 
-    mov eax, [esp]                          ; 异常的编号
+    mov eax, [esp]                          ; 异常的编号 作为参数 传给 _handler_table 处理函数
 
     call [_handler_table + eax * 4]         ; 调用处理函数 回到 c 
 

@@ -15,8 +15,8 @@ _start:
     ; xchg bx, bx
     ; int 0x80            ; 调用中断处理函数，然后返回
 
-    mov bx, 0
-    div bx
+    ; mov bx, 0
+    ; div bx
     int 0x80
 
 
