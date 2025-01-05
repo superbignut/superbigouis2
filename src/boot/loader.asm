@@ -114,7 +114,7 @@ real_printf:
 [bits 32]
 protect_enable:
     mov ax, data_selector       ; 切换到数据段
-	mov ds, ax                  ; 这里的ds在保护模式下还是会用到， 真实没想到 
+	mov ds, ax                  ; 这里的ds在保护模式下还是会用到， 真是没想到 
 	mov es, ax
 	mov ss, ax
 	mov fs, ax
