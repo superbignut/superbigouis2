@@ -10,14 +10,14 @@
         %ifn %2
             push 0x2222_2222                ; 原本不压入错误码的，也压入一个
         %endif
-            push %1                         ; 异常的编号
+            push %1                         ; 异常的编号，也当作了传给c的函数的参数
             jmp interrupt_entry
     %endmacro
 
 
 interrupt_entry:
 
-    mov eax, [esp]                          ; 异常的编号 作为参数 传给 _handler_table 处理函数
+    mov eax, [esp]                          ; 不不不，这里的 eax 只是为了计算下面的第几个回调函数
 
     call [_handler_table + eax * 4]         ; 调用处理函数 回到 c 
 

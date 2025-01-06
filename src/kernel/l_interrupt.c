@@ -43,11 +43,11 @@ static char *msg[]={
 
 
 
-/// @brief 
-static void exception_handler(int vector){
+/// @brief 真实的异常处理函数的位置，根据异常编号打印异常名
+static void exception_handler(int vector, int code){
     
     if(vector < 22){
-        printk("Exception occured: %s\n", msg[vector]);
+        printk("Exception occured: %s, Error Code: 0x%x\n", msg[vector], code);
     }else{
         panic("Exception occured: %s\n", "Error code not defined.");
     }

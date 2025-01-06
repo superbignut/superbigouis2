@@ -145,3 +145,19 @@ nasm [宏](https://www.nasm.us/xdoc/2.15.05/html/nasmdoc4.html#section-4.3)
 具体的与处理结果 可以用 nasm -E 来查看
 
 手册里也可以看到，Error code 的结构也是有含义的，具体先不了解
+
+
+```cpp
+interrupt_entry:
+
+    mov eax, [esp]                          ; 这里最开始被认为在传递参数，其实并没有
+
+    call [_handler_table + eax * 4]         ; 调用处理函数 回到 c 
+
+    add esp, 8                              ; 弹出两个参数
+
+    iret
+```
+
+这里还有一个问题，就是这里是用寄存器传参数的，但是我记的用c写函数的时候，传参用的是栈，这里还需要调研一下
+    + 确实是用栈， 这个寄存器只是为了call 来做一个索引，并不是在传递参数
