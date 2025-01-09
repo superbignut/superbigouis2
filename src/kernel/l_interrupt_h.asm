@@ -60,6 +60,23 @@ interrupt_entry:
     INTERRUPT_HANDLER 0x1D, 1
     INTERRUPT_HANDLER 0x1E, 1
     INTERRUPT_HANDLER 0x1F, 0
+
+    INTERRUPT_HANDLER 0x20, 0               ; 用作外部中断
+    INTERRUPT_HANDLER 0x21, 0               
+    INTERRUPT_HANDLER 0x22, 0
+    INTERRUPT_HANDLER 0x23, 0
+    INTERRUPT_HANDLER 0x24, 0
+    INTERRUPT_HANDLER 0x25, 0
+    INTERRUPT_HANDLER 0x26, 0
+    INTERRUPT_HANDLER 0x27, 0
+    INTERRUPT_HANDLER 0x28, 0
+    INTERRUPT_HANDLER 0x29, 0
+    INTERRUPT_HANDLER 0x2A, 0
+    INTERRUPT_HANDLER 0x2B, 0
+    INTERRUPT_HANDLER 0x2C, 0
+    INTERRUPT_HANDLER 0x2D, 0
+    INTERRUPT_HANDLER 0x2E, 0
+    INTERRUPT_HANDLER 0x2F, 0
                    
 
     global _handler_entry_table             ; 将 _interrupt_handler_0x** 函数的首地址 放在一个数组中， 并声明为 global
@@ -98,6 +115,22 @@ _handler_entry_table:                       ;  这里就相当于把 各个处�
     dd _interrupt_handler_0x1E
     dd _interrupt_handler_0x1F
 
+    dd _interrupt_handler_0x20      
+    dd _interrupt_handler_0x21
+    dd _interrupt_handler_0x22
+    dd _interrupt_handler_0x23
+    dd _interrupt_handler_0x24
+    dd _interrupt_handler_0x25
+    dd _interrupt_handler_0x26
+    dd _interrupt_handler_0x27
+    dd _interrupt_handler_0x28
+    dd _interrupt_handler_0x29
+    dd _interrupt_handler_0x2A
+    dd _interrupt_handler_0x2B
+    dd _interrupt_handler_0x2C
+    dd _interrupt_handler_0x2D
+    dd _interrupt_handler_0x2E
+    dd _interrupt_handler_0x2F
 
 
 

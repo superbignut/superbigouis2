@@ -23,11 +23,11 @@ struct _console console;
 /// @brief 找到屏幕开始的地方， 真实地址保存到console
 static void get_screen(){
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
-    console.screen_pos = read_byte_from_vga(CRT_DATA_REG_PORT) << 8;
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
+    console.screen_pos = read_byte_from_port(CRT_DATA_REG_PORT) << 8;
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
-    console.screen_pos |= read_byte_from_vga(CRT_DATA_REG_PORT);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
+    console.screen_pos |= read_byte_from_port(CRT_DATA_REG_PORT);
     
     console.screen_pos << 1;             //  * 2 一个字符两个字节
 
@@ -38,11 +38,11 @@ static void get_screen(){
 /// @param _pos >= 0xb8000 的值 以 字节为单位
 static void update_screen(){
     //console.screen_pos = _pos;
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_START_ADDR_HIGH_INDEX);
+    write_byte_to_port(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> 1) & 0xff);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_START_ADDR_LOW_INDEX);
+    write_byte_to_port(CRT_DATA_REG_PORT, ((console.screen_pos - MEM_ADDR_BASE) >> 1) & 0xff);
 }
 
 
@@ -50,11 +50,11 @@ static void update_screen(){
 ///        这里需要注意的地方是，因为屏幕起始的位置是可以调整的，但是光标始终是以0xb8000 为起点
 ///        因此需要减一下
 static void get_cursor(){
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
-    console.cursor_pos = read_byte_from_vga(CRT_DATA_REG_PORT) << 8;
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
+    console.cursor_pos = read_byte_from_port(CRT_DATA_REG_PORT) << 8;
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
-    console.cursor_pos |= read_byte_from_vga(CRT_DATA_REG_PORT);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
+    console.cursor_pos |= read_byte_from_port(CRT_DATA_REG_PORT);
 
     get_screen();
 
@@ -72,11 +72,11 @@ static void get_cursor(){
 /// @param _pos >= 0xb8000 的值 以 字节为单位
 static void update_cursor(){
     // console.cursor_pos = _pos;
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_CUSOR_HIGH_INDEX);
+    write_byte_to_port(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> (8 + 1)) & 0xff);
 
-    write_byte_to_vga(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
-    write_byte_to_vga(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> 1) & 0xff);
+    write_byte_to_port(CRT_ADDR_REG_PORT, CRT_CUSOR_LOW_INDEX);
+    write_byte_to_port(CRT_DATA_REG_PORT, ((console.cursor_pos - MEM_ADDR_BASE) >> 1) & 0xff);
 }
 
 

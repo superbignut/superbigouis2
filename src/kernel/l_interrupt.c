@@ -54,8 +54,14 @@ static void exception_handler(int vector, int code){
     while(True);
 }
 
+/// @brief 外部中断 处理函数
+/// @param vector 
+static void hardware_int_handler(int vector){
+
+}
+
 /// @brief 对前32个异常初始化，handler函数 为汇编中定义的 _interrupt_handler_0x**
-void interrupt_init(){
+static void idt_init(){
 
     for(size_t i = 0; i< HANDLER_ENTRY_SIZE; ++i){
         
@@ -72,8 +78,14 @@ void interrupt_init(){
         gate->P =  1;
     }
     
+    //  初始化异常中断处理函数
     for(size_t i = 0; i< HANDLER_ENTRY_SIZE; ++i){
         handler_table[i] = exception_handler;
+    }
+
+    //  初始化外部中断处理函数
+    for(size_t i = 0x20; i < HANDLER_ENTRY_SIZE; ++i){
+        handler_table[i] = hardware_int_handler;
     }
 
     idt_ptr.base_addr = (uint32_t)&idt;
@@ -81,4 +93,14 @@ void interrupt_init(){
     
     // XBB;
     asm volatile("lidt _idt_ptr");          //  加载 idtr 寄存器
+}
+
+static void pic_init(){
+    
+}
+
+void interrupt_init(){
+
+    idt_init();
+
 }

@@ -32,22 +32,22 @@
 /// @brief 给定端口， 读8位
 /// @param port 
 /// @return 
-uint8_t read_byte_from_vga(uint16_t port);
+uint8_t read_byte_from_port(uint16_t port);
 
 /// @brief 给定端口， 读16位
 /// @param port 
 /// @return 
-uint16_t read_word_from_vga(uint16_t port); 
+uint16_t read_word_from_port(uint16_t port); 
 
 
 /// @brief 给定端口，将8位 value 写入端口
 /// @param port 
 /// @param value 
-void write_byte_to_vga(uint16_t port, uint8_t value);
+void write_byte_to_port(uint16_t port, uint8_t value);
 
 /// @brief 给定端口，将16位 value 写入端口
 /// @param port 
 /// @param value 
-void write_word_to_vga(uint16_t port, uint16_t value);
+void write_word_to_port(uint16_t port, uint16_t value);
 
 #endif

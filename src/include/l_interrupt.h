@@ -4,9 +4,17 @@
 #include "l_gdt.h"              //  这里的 selector 都是一样的
 
 #define IDT_SIZE 256
-#define HANDLER_ENTRY_SIZE 32
+#define HANDLER_ENTRY_SIZE 0x30
 
 typedef void *handler_t;
+
+#define PIC_8259_MASTER_COMMAND 0x20
+#define PIC_8259_MASTER_DATA 0x20
+
+#define PIC_8259_SLAVE_COMMAND 0xA0
+#define PIC_8259_SLAVE_DATA 0xA1
+
+#define PIC_8259_EOI 0x20    
 
 typedef struct gate_descriptor{
     uint16_t offest_low;                    //  偏移低地址
