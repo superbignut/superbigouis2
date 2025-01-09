@@ -54,10 +54,26 @@ static void exception_handler(int vector, int code){
     while(True);
 }
 
+/// @brief 通知中断控制器，中断处理结束，重置 ISR 位
+/// @param vector 
+void send_eoi(int vector){
+    if(vector >= 0x20 && vector < 0x28){
+        write_byte_to_port(PIC_8259_MASTER_COMMAND, PIC_8259_EOI);
+    }
+    if(vector >= 0x28 && vector < 0x30){
+        write_byte_to_port(PIC_8259_MASTER_COMMAND, PIC_8259_EOI);
+        write_byte_to_port(PIC_8259_SLAVE_COMMAND, PIC_8259_EOI);
+    }
+}
+
+
+uint32_t _cnt = 0;
+
 /// @brief 外部中断 处理函数
 /// @param vector 
 static void hardware_int_handler(int vector){
-
+    send_eoi(vector);
+    printk("hardware_int_handler was called %d times.\n", _cnt++);
 }
 
 /// @brief 对前32个异常初始化，handler函数 为汇编中定义的 _interrupt_handler_0x**
@@ -79,7 +95,7 @@ static void idt_init(){
     }
     
     //  初始化异常中断处理函数
-    for(size_t i = 0; i< HANDLER_ENTRY_SIZE; ++i){
+    for(size_t i = 0; i < HANDLER_ENTRY_SIZE; ++i){
         handler_table[i] = exception_handler;
     }
 
@@ -95,12 +111,26 @@ static void idt_init(){
     asm volatile("lidt _idt_ptr");          //  加载 idtr 寄存器
 }
 
+
+
+/// @brief 初始化中断控制器， 初始化 8259A 的 ICW 和 OCW 最主要的工作就是 设定了外部中断的中断号，进而和异常就统一在一起了
 static void pic_init(){
-    
+    write_byte_to_port(PIC_8259_MASTER_COMMAND, 0b00010001);    //  ICW1: 边沿触发 + 级联 + 需要ICW4
+    write_byte_to_port(PIC_8259_MASTER_DATA, 0x20);             //  ICW2: 0b0010_0000 因此后续的编号都是 0x20 + IRX 编号 **核心**
+    write_byte_to_port(PIC_8259_MASTER_DATA, 0b00000100);       //  ICW3: IR2 接子片
+    write_byte_to_port(PIC_8259_MASTER_DATA, 0b00000001);       //  ICW4: 8086 + 手动 EOI
+
+    write_byte_to_port(PIC_8259_SLAVE_COMMAND, 0b00010001);     //  ICW1: 边沿触发
+    write_byte_to_port(PIC_8259_SLAVE_DATA, 0x28);              //  ICW2：中断编号 **核心**
+    write_byte_to_port(PIC_8259_SLAVE_DATA, 2);                 //  ICW3: 连接到主片 IR2
+    write_byte_to_port(PIC_8259_SLAVE_DATA, 0b00000001);        //  ICW4: 8086 + 手动 EOI
+
+    write_byte_to_port(PIC_8259_MASTER_DATA, 0b11111110);       //  OCW1：MASK 只保留 0 号中断
+    write_byte_to_port(PIC_8259_SLAVE_DATA, 0b11111111);        //  OCW1: MASK
 }
 
 void interrupt_init(){
 
     idt_init();
-
+    pic_init();
 }

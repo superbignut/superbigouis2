@@ -61,8 +61,8 @@ interrupt_entry:
     INTERRUPT_HANDLER 0x1E, 1
     INTERRUPT_HANDLER 0x1F, 0
 
-    INTERRUPT_HANDLER 0x20, 0               ; 用作外部中断
-    INTERRUPT_HANDLER 0x21, 0               
+    INTERRUPT_HANDLER 0x20, 0               ; 时钟中断，可能是给到了晶振？
+    INTERRUPT_HANDLER 0x21, 0               ; 键盘中断
     INTERRUPT_HANDLER 0x22, 0
     INTERRUPT_HANDLER 0x23, 0
     INTERRUPT_HANDLER 0x24, 0

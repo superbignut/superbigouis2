@@ -9,7 +9,7 @@
 typedef void *handler_t;
 
 #define PIC_8259_MASTER_COMMAND 0x20
-#define PIC_8259_MASTER_DATA 0x20
+#define PIC_8259_MASTER_DATA 0x21
 
 #define PIC_8259_SLAVE_COMMAND 0xA0
 #define PIC_8259_SLAVE_DATA 0xA1

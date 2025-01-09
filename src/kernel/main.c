@@ -10,6 +10,7 @@
 #include "l_gdt.h"
 #include "l_task.h"
 #include "l_interrupt.h"
+#include "l_stdlib.h"
 
 void func(int t){
 
@@ -28,11 +29,17 @@ void kernel_init(){
 
     while(cnt--){
         int b = printk("Hello operating system...\n");
-        //break;
     }
 
     // task_init();
     interrupt_init();
     
+    asm volatile("sti");        //  开启中断
 
+    while(True){                //  中断测试
+        printk("kernel_init func wa still running...\n");
+        delay(100000000);
+    }
+    
+    return;
 }

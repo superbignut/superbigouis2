@@ -87,7 +87,9 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_task.o		\
 							$(BUILD_KERNEL)/l_schedule.o    \
 							$(BUILD_KERNEL)/l_interrupt.o   \
-							$(BUILD_KERNEL)/l_interrupt_h.o    
+							$(BUILD_KERNEL)/l_interrupt_h.o \
+							$(BUILD_KERNEL)/l_stdlib.o
+
 							
 
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接
