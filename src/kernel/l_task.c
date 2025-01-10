@@ -1,6 +1,8 @@
 #include "l_task.h"
 #include "l_debug.h"
 #include "l_printk.h"
+#include "l_types.h"
+#include "l_stdlib.h"
 
 #define PAGE_SIZE 0x1000                                //  每个任务分配一页的栈 4G / 4k = 1M
 
@@ -13,7 +15,8 @@ extern void task_switch(task_t *next);
 /// @brief 创建一个进程 并在这个页的最高位写入进程信息（寄存器组），并更新页的前4个字节是栈顶的位置
 /// @param task 
 /// @param target 
-static void task_create(task_t *task, target_t target){
+static void task_create(task_t *task, target_t target)
+{
 
     uint32_t stack = (uint32_t)task + PAGE_SIZE;        //  栈顶
     
@@ -31,7 +34,8 @@ static void task_create(task_t *task, target_t target){
 
 /// @brief 返回当前调用的函数
 /// @return 
-task_t *running_task(){
+task_t *running_task()
+{
     asm volatile(
         "movl %esp, %eax \n"
         "andl $0xfffff000, %eax \n"
@@ -39,7 +43,8 @@ task_t *running_task(){
 }
 
 /// @brief 判断当前的栈顶地址是 1 开头（1xxx）, 还是， 2 开头（2xxx）； 其实，printA之后就是1开头， printB之后就是2开头
-void schedule(){
+void schedule()
+{
     task_t *current = running_task();
     task_t *next = current == a ? b : a;
     task_switch(next);
@@ -48,29 +53,30 @@ void schedule(){
 
 /// @brief 循环很关键
 /// @return 
-uint32_t thread_a(){
-    while(True){
+uint32_t _ofp thread_a()    //  这里开启栈帧感觉问题也不大的
+{
+    asm volatile("sti");
+    while(True)
+    {
         printk("A");
-        schedule();
-                                                        //  汇编中保存的上下文，1 执行完之后 回到 2 
-        printk("C");
     }
 }
 
 
 /// @brief 同上
 /// @return 
-uint32_t thread_b(){
-    while(True){
+uint32_t _ofp thread_b()
+{
+    asm volatile("sti");
+    while(True)
+    {
         printk("B");
-        schedule();
-
-        printk("D");
     }
 }
 
 /// @brief 这个初始化，完成了AB任务切换的启动
-void task_init(){
+void task_init()
+{
     task_create(a, thread_a);
     task_create(b, thread_b);
     schedule();

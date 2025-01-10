@@ -10,6 +10,7 @@
 #define False 0
 
 #define _packed __attribute__((packed))
+#define _ofp __attribute__((optimize("omit-frame-pointer"))) // 函数不使用栈帧
 
 typedef unsigned int size_t;
 

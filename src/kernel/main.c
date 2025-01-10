@@ -12,34 +12,16 @@
 #include "l_interrupt.h"
 #include "l_stdlib.h"
 
-void func(int t){
 
-}
-void kernel_init(){
-
+void kernel_init()
+{
     console_init();
     
     gdt_init();
-    // XBB;
 
-    int cnt = 10;
-
-    func(cnt);
-
-
-    while(cnt--){
-        int b = printk("Hello operating system...\n");
-    }
-
-    // task_init();
     interrupt_init();
     
-    asm volatile("sti");        //  开启中断
-
-    while(True){                //  中断测试
-        printk("kernel_init func wa still running...\n");
-        delay(100000000);
-    }
+    task_init();
     
     return;
 }

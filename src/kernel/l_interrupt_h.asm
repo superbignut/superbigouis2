@@ -17,9 +17,28 @@
 
 interrupt_entry:
 
-    mov eax, [esp]                          ; 不不不，这里的 eax 只是为了计算下面的第几个回调函数
+    
+    push ds
+    push es 
+    push fs 
+    push gs
+
+    pusha                                   ;  EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
+
+    mov eax, [esp + 4 * 12]                 ; 不不不，这里的 eax 只是为了计算下面的第几个回调函数 拿到异常编号
+
+    push eax                                ; 这个参数 就是 异常（中断）编号
 
     call [_handler_table + eax * 4]         ; 调用处理函数 回到 c 
+
+    pop eax                                 ; 这里能走回来吗？？？
+
+    popa
+
+    pop gs
+    pop fs
+    pop es
+    pop ds
 
     add esp, 8                              ; 弹出两个参数
 

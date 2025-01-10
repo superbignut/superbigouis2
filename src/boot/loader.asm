@@ -85,7 +85,7 @@ prepare_for_protected_mode:
     or al, 1        ; set PE (Protection Enable) bit in CR0 (Control Register 0)
     mov cr0, eax
 
-    ; xchg bx, bx    
+    ; xchg bx, bx   ; 在这里 cs 被默认修改成了 code_selector 的数值
     jmp code_selector : protect_enable      ; 跳到保护模式
 
 halt:

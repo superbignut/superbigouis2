@@ -2,6 +2,7 @@
 #include "l_debug.h"
 #include "l_printk.h"
 #include "l_assert.h"
+#include "l_task.h"
 
 gate_descriptor idt[IDT_SIZE];              //  中断描述符表
 
@@ -44,8 +45,26 @@ static char *msg[]={
 
 
 /// @brief 真实的异常处理函数的位置，根据异常编号打印异常名
-static void exception_handler(int vector, int code){
+/*
+
+    push 0x2222_2222                ; 原本不压入错误码的，也压入一个
+        
+    push %1                         ; 异常的编号，也当作了传给c的函数的参数
+        
+    %endmacro
+    push ds
+    push es 
+    push fs 
+    push gs
+
+    pusha                                   ;  EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
     
+    输入参数 反着来
+*/
+static void exception_handler(int vector, uint32_t edi, uint32_t dsi, uint32_t ebp, uint32_t esp,
+                              uint32_t ebx, uint32_t edx, uint32_t ecx, uint32_t eax,
+                              uint32_t gs, uint32_t fs, uint32_t es, uint32_t ds,
+                              uint32_t vector_same, uint32_t code){
     if(vector < 22){
         printk("Exception occured: %s, Error Code: 0x%x\n", msg[vector], code);
     }else{
@@ -67,13 +86,16 @@ void send_eoi(int vector){
 }
 
 
-uint32_t _cnt = 0;
+// uint32_t _cnt = 0;
+extern void schedule();
 
 /// @brief 外部中断 处理函数
 /// @param vector 
 static void hardware_int_handler(int vector){
+    
     send_eoi(vector);
-    printk("hardware_int_handler was called %d times.\n", _cnt++);
+    schedule();
+    // printk("hardware_int_handler was called %d times.\n", _cnt++);
 }
 
 /// @brief 对前32个异常初始化，handler函数 为汇编中定义的 _interrupt_handler_0x**
