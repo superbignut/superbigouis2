@@ -11,8 +11,8 @@ gdtr_content gdt_ptr;                                       //  GDT 表首地址
 
 
 /// @brief 将汇编 loader 中的 gdt 表 copy 到 c 中新的位置，并使用 lgdt 重新加载
-void gdt_init(){
-    
+void gdt_init()
+{
     assert(sizeof(segment_descriptor) == 8);                //  gdt_des 的大小是8个字节
     assert(sizeof(segment_selector) == 2);                  //  segment_sel 的大小是2个字节
     assert(sizeof(gdtr_content) == 6);                      //  gdtr_content 的大小是2个字节

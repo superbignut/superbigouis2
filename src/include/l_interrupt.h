@@ -4,7 +4,8 @@
 #include "l_gdt.h"              //  这里的 selector 都是一样的
 
 #define IDT_SIZE 256
-#define HANDLER_ENTRY_SIZE 0x30
+#define EXCEPTION_SIZE 0x20                 //  前32个是异常
+#define HANDLER_ENTRY_SIZE 0x30             //  紧接着的12个是外部中断
 
 typedef void *handler_t;
 
@@ -16,7 +17,8 @@ typedef void *handler_t;
 
 #define PIC_8259_EOI 0x20    
 
-typedef struct gate_descriptor{
+typedef struct gate_descriptor
+{
     uint16_t offest_low;                    //  偏移低地址
     uint16_t segment_selector;              //  这里对应的是 gdt 中放在 cs 等段寄存器中的 selector
     uint8_t  reserved;                      //  0

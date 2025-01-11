@@ -22,6 +22,4 @@ void kernel_init()
     interrupt_init();
     
     task_init();
-    
-    return;
 }

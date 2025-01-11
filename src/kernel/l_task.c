@@ -5,9 +5,10 @@
 #include "l_stdlib.h"
 
 #define PAGE_SIZE 0x1000                                //  每个任务分配一页的栈 4G / 4k = 1M
-
-task_t *a = (task_t *)0x1000;                           //  这两个地方应该是空的(其实也是 loader之前的地址)
-task_t *b = (task_t *)0x2000;                           //  相当于创建了两个上下文-寄存器组
+                                                        //  这里 应该是 虚拟机内部的实现上的区别，加上delay后 bochs 打印是正常的，qemu就会不均匀
+                                                        //  这里如果是 0x1000 和 0x2000 qemu 总是会出现 AB 打印不均匀的问题， 换成其他地址就ok
+task_t *a = (task_t *)0x2000;                           //  这两个地方应该是空的(其实也是 loader之前的地址)
+task_t *b = (task_t *)0x3000;                           //  相当于创建了两个上下文-寄存器组
 
 /// 切换到下一个函数
 extern void task_switch(task_t *next);
@@ -59,6 +60,7 @@ uint32_t _ofp thread_a()    //  这里开启栈帧感觉问题也不大的
     while(True)
     {
         printk("A");
+        delay(40000);
     }
 }
 
@@ -71,6 +73,7 @@ uint32_t _ofp thread_b()
     while(True)
     {
         printk("B");
+        delay(40000);
     }
 }
 
@@ -79,5 +82,5 @@ void task_init()
 {
     task_create(a, thread_a);
     task_create(b, thread_b);
-    schedule();
+    schedule();     //  这里直接调 thread_a 也可以，开中断 + 死循环 也可以
 }

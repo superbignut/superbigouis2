@@ -6,12 +6,15 @@
 /// @param dest 
 /// @param src 
 /// @return 
-char *string_copy(char *dest, const char *src){
+char *string_copy(char *dest, const char *src)
+{
     char *ptr = dest;
-    while(True){
+    while(True)
+    {
         *ptr++ = *src;      // ++ suffix 的优先级最高 > * dereference
         *ptr = *src;
-        if(*src++ == EOS){
+        if(*src++ == EOS)
+        {
             return dest;
         }
     }
@@ -24,13 +27,16 @@ char *string_copy(char *dest, const char *src){
 /// @param sr 
 /// @param count 
 /// @return 
-char *string_n_copy(char *dest, const char *src, size_t count){
+char *string_n_copy(char *dest, const char *src, size_t count)
+{
     char *ptr = dest;
     size_t temp_cnt = 0;
 
-    for(; temp_cnt < count; ++temp_cnt){ 
+    for(; temp_cnt < count; ++temp_cnt)
+    { 
         *ptr++ = *src;
-        if(*src++ == EOS){
+        if(*src++ == EOS)
+        {
             return dest;
         }
     }
@@ -43,15 +49,19 @@ char *string_n_copy(char *dest, const char *src, size_t count){
 /// @param dest 
 /// @param src 
 /// @return 
-char *strint_cat(char *dest, const char *src){
+char *strint_cat(char *dest, const char *src)
+{
     char *ptr = dest;
-    while(*ptr != EOS){        // 找到 EOS
+    while(*ptr != EOS)
+    {        // 找到 EOS
         ptr++;
     }         
 
-    while(True){
+    while(True)
+    {
         *ptr++ = *src;
-        if(*src++ == EOS){
+        if(*src++ == EOS)
+        {
             return dest;
         }
     }
@@ -61,10 +71,14 @@ char *strint_cat(char *dest, const char *src){
 /// @param lhs 
 /// @param rhs 
 /// @return -1 is < ; 0 is = ; 1 is > ;
-int string_compare(const char* lhs, const char* rhs){
-    for( ; ; lhs++, rhs++){
-        if (*lhs == *rhs){
-            if(*lhs == EOS){
+int string_compare(const char* lhs, const char* rhs)
+{
+    for( ; ; lhs++, rhs++)
+    {
+        if (*lhs == *rhs)
+        {
+            if(*lhs == EOS)
+            {
                 return 0;
             }
             continue;
@@ -79,27 +93,35 @@ int string_compare(const char* lhs, const char* rhs){
 /// @param str 
 /// @param ch 
 /// @return 
-char *string_find_char_first(const char* str, int ch){
+char *string_find_char_first(const char* str, int ch)
+{
     char *ptr = (char*)str;
-    while(True){
-        if(*ptr == ch){
+    while(True)
+    {
+        if(*ptr == ch)
+        {
             return ptr;
         }
-        if(*ptr++ == EOS){
+        if(*ptr++ == EOS)
+        {
             return NULL;
         }
     }
 }   
 
-char *string_find_char_last(const char* str, int ch){
+char *string_find_char_last(const char* str, int ch)
+{
 
     char *ptr = (char*)str;
     char *ans = NULL;
-    while(True){
-        if(*ptr == ch){
+    while(True)
+    {
+        if(*ptr == ch)
+        {
             ans = ptr;
         }
-        if(*ptr++ == EOS){
+        if(*ptr++ == EOS)
+        {
             return ans;
         }
     }
@@ -109,10 +131,12 @@ char *string_find_char_last(const char* str, int ch){
 ///        array whose first element is pointed to by str up to and not including the first null character.
 /// @param str 
 /// @return 
-size_t string_len(const char *str){
+size_t string_len(const char *str)
+{
     char *ptr = (char*)str;
 
-    while(*ptr != EOS){
+    while(*ptr != EOS)
+    {
         ++ptr;
     }
     return ptr - str;
@@ -124,10 +148,12 @@ size_t string_len(const char *str){
 /// @param ch 
 /// @param count 
 /// @return 
-void *memory_set(void *dest, int ch, size_t count){
+void *memory_set(void *dest, int ch, size_t count)
+{
     char *ptr = dest;
 
-    for(size_t i = 0; i < count; ++i){
+    for(size_t i = 0; i < count; ++i)
+    {
         *ptr++ = ch;
     }
     return dest;
@@ -139,10 +165,12 @@ void *memory_set(void *dest, int ch, size_t count){
 /// @param src 
 /// @param count 
 /// @return 
-void* memory_copy(void *dest, const void *src, size_t count){
+void* memory_copy(void *dest, const void *src, size_t count)
+{
     char *ptr = dest;
     
-    for(size_t i = 0; i < count; ++i){
+    for(size_t i = 0; i < count; ++i)
+    {
         *ptr++ = *((char*)src++);   // (type) < ++ suffix
     }
     return dest;
@@ -153,13 +181,17 @@ void* memory_copy(void *dest, const void *src, size_t count){
 /// @param rhs 
 /// @param count 
 /// @return 
-int memory_compare(const void* lhs, const void* rhs, size_t count){
+int memory_compare(const void* lhs, const void* rhs, size_t count)
+{
     char *str1 = (char*)lhs;
     char *str2 = (char*)rhs;
     
-    for(int i=0; i < count; str1++, str2++){
-        if (*str1 == *str2){
-            if(*str1 == EOS){
+    for(int i=0; i < count; str1++, str2++)
+    {
+        if (*str1 == *str2)
+        {
+            if(*str1 == EOS)
+            {
                 return 0;
             }
             continue;
@@ -173,14 +205,18 @@ int memory_compare(const void* lhs, const void* rhs, size_t count){
 /// @param ch 
 /// @param count 
 /// @return Pointer to the location of the byte, or a null pointer if no such byte is found.
-void* memory_find_char_first(const void* ptr, int ch, size_t count){
+void* memory_find_char_first(const void* ptr, int ch, size_t count)
+{
     char *tmp = (char*)ptr;
     size_t cnt = 0;
-    for( ; cnt< count; ++cnt){
-        if(*tmp == ch){
+    for( ; cnt< count; ++cnt)
+    {
+        if(*tmp == ch)
+        {
             return (void*)tmp;
         }
-        if(*tmp++ == EOS){
+        if(*tmp++ == EOS)
+        {
             return NULL;
         }
     }

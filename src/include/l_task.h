@@ -8,7 +8,8 @@ typedef uint32_t (*target_t)();                 //  第一次见， 这是一个
 
 
 /// @brief 进程信息
-typedef struct task_t{
+typedef struct task_t
+{
 
     uint32_t *stack;                        //   页的前四个字节是这个程序的栈的地址
 

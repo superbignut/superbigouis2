@@ -6,7 +6,8 @@ static char buf[1024];
 
 /// @brief 代码阻塞
 /// @param name 
-static void spin(char *name){
+static void spin(char *name)
+{
     printk("--> Code was Fucked up by %s ...\n", name);
     while(True);    
 }
@@ -17,7 +18,8 @@ static void spin(char *name){
 /// @param file 
 /// @param base 
 /// @param line 
-void assertion_failure(char *exp, char *file, char *base, int line){
+void assertion_failure(char *exp, char *file, char *base, int line)
+{
     printk(
         "\n--> assert expression (%s) failed!\n"
            "--> file is: %s \n"
@@ -34,7 +36,8 @@ void assertion_failure(char *exp, char *file, char *base, int line){
 /// @brief 比 assert 多了自定义的打印项
 /// @param fmt 
 /// @param  
-void panic(const char *fmt, ...){
+void panic(const char *fmt, ...)
+{
     va_list args;
     va_start(args, fmt);
 

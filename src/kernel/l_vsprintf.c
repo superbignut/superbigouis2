@@ -22,9 +22,11 @@
 /// @brief 将字符串转为数字， 并移动指针
 /// @param s const 保证不修改 **s 的内容， ** 可以对指针进行移动:（*s)++
 /// @return 
-static int skip_atoi(const char **s){
+static int skip_atoi(const char **s)
+{
     int i = 0;
-    while(is_digit(**s)){
+    while(is_digit(**s))
+    {
         i = i * 10 + *((*s)++) - '0';
     }
     return i;
@@ -38,7 +40,8 @@ static int skip_atoi(const char **s){
 /// @param precision 精度
 /// @param flags flag 标志位
 /// @return 返回新的str指针
-static char *number(char *str, uint32_t num, int base, int size, int precision, int flags){
+static char *number(char *str, uint32_t num, int base, int size, int precision, int flags)
+{
     char c;
     char sign;
     char tmp[36];
@@ -59,11 +62,13 @@ static char *number(char *str, uint32_t num, int base, int size, int precision, 
         
     c = (flags & ZEROPAD) ? '0' : ' ';                                          //  
     
-    if (flags & SIGN && num < 0){
+    if (flags & SIGN && num < 0)
+    {
         sign = '-';
         num = -num;
     }
-    else{
+    else
+    {
         sign = (flags & PLUS) ? '+' : ((flags & SPACE) ? ' ' : 0);
     }
     if (sign)
@@ -79,10 +84,12 @@ static char *number(char *str, uint32_t num, int base, int size, int precision, 
     
     i = 0;
                                                     //  如果数值 num 为 0，则临时字符串='0'；否则根据给定的基数将数值 num 转换成字符形式
-    if (num == 0){
+    if (num == 0)
+    {
         tmp[i++] = '0';
     }
-    else{
+    else
+    {
         while (num != 0)
         {
             index = num % base;                     //  开始转换 并写进tmp
@@ -97,8 +104,10 @@ static char *number(char *str, uint32_t num, int base, int size, int precision, 
                                                     // 宽度值 size 减去用于存放数值字符的个数
     size -= precision;
 
-    if (!(flags & (ZEROPAD + LEFT))){
-        while (size-- > 0){
+    if (!(flags & (ZEROPAD + LEFT)))
+    {
+        while (size-- > 0)
+        {
             *str++ = ' ';
         }
     }
@@ -141,7 +150,8 @@ static char *number(char *str, uint32_t num, int base, int size, int precision, 
 /// @param fmt 
 /// @param args 
 /// @return 
-int vsprintf(char *buf, const char *fmt, va_list args){
+int vsprintf(char *buf, const char *fmt, va_list args)
+{
     
     int len;
 
@@ -161,9 +171,11 @@ int vsprintf(char *buf, const char *fmt, va_list args){
 
     int qualifier;
 
-    for(str = buf; *fmt; ++fmt){
+    for(str = buf; *fmt; ++fmt)
+    {
                                         
-        if(*fmt != '%'){                //  没有找到 % 时，字符写进 buf
+        if(*fmt != '%')
+        {                               //  没有找到 % 时，字符写进 buf
             *str++ = *fmt;
             continue;
         }
@@ -174,7 +186,8 @@ int vsprintf(char *buf, const char *fmt, va_list args){
 
         ++fmt;                          //  向前移动一位。跳过 % 或switch 到的字符
 
-        switch(*fmt){
+        switch(*fmt)
+        {
 
             case '-':
                 flags |= LEFT;
@@ -196,28 +209,34 @@ int vsprintf(char *buf, const char *fmt, va_list args){
 
         field_width = -1;                       //  开始找字符宽度
 
-        if(is_digit(*fmt)){                     //  如果第一个就是数字，那么就被当作宽度值
+        if(is_digit(*fmt))
+        {                                       //  如果第一个就是数字，那么就被当作宽度值
             field_width = skip_atoi(&fmt);      //  得到数字
         }
-        else if(*fmt == '*'){
+        else if(*fmt == '*')
+        {
             return 0;                           //  Todo
         }
         
 
         precision = -1;
 
-        if(*fmt == '.'){                        //  开始匹配精度
+        if(*fmt == '.')
+        {                                       //  开始匹配精度
     
             ++fmt;
 
-            if(is_digit(*fmt)){
+            if(is_digit(*fmt))
+            {
                 precision = skip_atoi(&fmt);
             }
-            else if(*fmt == '*'){
+            else if(*fmt == '*')
+            {
                 return 0;                       //  Todo
             }
 
-            if(precision < 0){                  
+            if(precision < 0)
+            {                  
                 precision = 0;                  //  精度小于零 ignore
             }
         }
@@ -225,7 +244,8 @@ int vsprintf(char *buf, const char *fmt, va_list args){
 
         qualifier = -1;
 
-        if(*fmt == 'h' || *fmt == 'l' || *fmt == 'L'){              //  暂时只支持1个 qualifier
+        if(*fmt == 'h' || *fmt == 'l' || *fmt == 'L')
+        {                                           //  暂时只支持1个 qualifier
             qualifier = *fmt;
             ++fmt;
         }   
@@ -233,15 +253,18 @@ int vsprintf(char *buf, const char *fmt, va_list args){
         switch (*fmt)
         {
         case 'c':
-            if(!(flags & LEFT)){                                    //  不是左对齐
-                while(--field_width > 0){                           //  插入 field_width - 1个空格
+            if(!(flags & LEFT))
+            {                                       //  不是左对齐
+                while(--field_width > 0)
+                {                                   //  插入 field_width - 1个空格
                     *str++ = ' ';
                 }
             }
 
             *str++ = (uint8_t)va_arg(args, int);                    //  字符赋值
             
-            while(--field_width > 0){                               //  左对齐部分
+            while(--field_width > 0)
+            {                                       //  左对齐部分
                     *str++ = ' ';
             }
 
@@ -252,17 +275,21 @@ int vsprintf(char *buf, const char *fmt, va_list args){
             s = va_arg(args, char *);
             len = string_len(s);
 
-            if(!(flags & LEFT)){                                    //  不是左对齐    
-                while(--field_width > len){                         //  插入 field_width - 1 - len个空格
+            if(!(flags & LEFT))
+            {                                    //  不是左对齐    
+                while(--field_width > len)
+                {                         //  插入 field_width - 1 - len个空格
                     *str++ = ' ';
                 }
             }
 
-            for(i = 0; i< len; ++i){
+            for(i = 0; i< len; ++i)
+            {
                 *str++ = *s++;
             }
 
-            while(--field_width > 0){                               //  左对齐部分
+            while(--field_width > 0)
+            {                               //  左对齐部分
                     *str++ = ' ';
             }
 
@@ -293,7 +320,8 @@ int vsprintf(char *buf, const char *fmt, va_list args){
 /// @param fmt 
 /// @param  
 /// @return 
-int sprintf(char *buf, const char *fmt, ...){
+int sprintf(char *buf, const char *fmt, ...)
+{
     va_list args;
     int i;
     
