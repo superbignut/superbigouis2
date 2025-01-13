@@ -80,7 +80,7 @@ static void exception_handler(int vector, uint32_t edi, uint32_t dsi, uint32_t e
 
 /// @brief 通知中断控制器，中断处理结束，重置 ISR 位
 /// @param vector 
-static void send_eoi(int vector)
+void send_eoi(int vector)
 {
     if(vector >= 0x20 && vector < 0x28)
     {
@@ -103,7 +103,7 @@ static void hardware_int_handler(int vector)
 {
     
     send_eoi(vector);
-    schedule();
+    // schedule();
     // printk("hardware_int_handler was called %d times.\n", _cnt++);
 }
 
@@ -161,10 +161,53 @@ static void pic_init()
     write_byte_to_port(PIC_8259_SLAVE_DATA, 2);                 //  ICW3: 连接到主片 IR2
     write_byte_to_port(PIC_8259_SLAVE_DATA, 0b00000001);        //  ICW4: 8086 + 手动 EOI
 
-    write_byte_to_port(PIC_8259_MASTER_DATA, 0b11111110);       //  OCW1：MASK 只保留 0 号中断
-    write_byte_to_port(PIC_8259_SLAVE_DATA, 0b11111111);        //  OCW1: MASK
+    write_byte_to_port(PIC_8259_MASTER_DATA, 0b11111111);       //  OCW1：MASK 只保留 0 号中断
+    write_byte_to_port(PIC_8259_SLAVE_DATA, 0b11111111);        //  OCW2: MASK
 }
 
+
+/// @brief 设置外部中断处理函数，clock 中断从0开始
+/// @param irq 
+/// @param handler 
+void set_hardware_interrupt_handler(uint32_t irq, handler_t handler)
+{
+    assert(irq >=0 && irq < 16);
+    handler_table[EXCEPTION_SIZE + irq] = handler;  //  从 异常之后的中断号开始写
+}
+
+/// @brief 设置屏蔽 MASK，先读已有配置，再添加新的配置
+/// @param irq 
+/// @param if_enable 
+void set_hardware_interrupt_mask(uint32_t irq, bool if_enable)
+{
+    assert(irq >=0 && irq < 16);
+    uint32_t _port;
+    uint8_t _data;
+
+    if(irq < 8)
+    {
+        _port = PIC_8259_MASTER_DATA;
+    }
+    else
+    {
+        _port = PIC_8259_SLAVE_DATA;
+        irq -= 8;                       //  这时需要去屏蔽 8259从片
+    }
+
+    _data = 1 << irq;
+
+    if(if_enable)
+    {
+        write_byte_to_port(_port, read_byte_from_port(_port) & (~_data));   //  先读出来，再去写， 可以防止覆盖已有的设置
+    }
+    else
+    {
+        write_byte_to_port(_port, read_byte_from_port(_port) | (_data));
+    }
+
+}
+
+/// @brief 中断初始化
 void interrupt_init()
 {
     idt_init();

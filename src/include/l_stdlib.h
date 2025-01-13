@@ -5,7 +5,7 @@
 
 void delay(uint32_t count);
 
-void hang();
+// void hang(); 不喜欢这个函数
 
 
 #endif

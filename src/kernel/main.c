@@ -11,7 +11,7 @@
 #include "l_task.h"
 #include "l_interrupt.h"
 #include "l_stdlib.h"
-
+#include "l_clock.h"
 
 void kernel_init()
 {
@@ -20,6 +20,11 @@ void kernel_init()
     gdt_init();
 
     interrupt_init();
+
+    clock_init();
+
+    c_sti();
+
+    while(True);
     
-    task_init();
 }

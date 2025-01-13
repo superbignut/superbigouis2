@@ -17,6 +17,11 @@ typedef void *handler_t;
 
 #define PIC_8259_EOI 0x20    
 
+
+#define CLOCK_IRQ 0
+#define KEYBOARD_IRQ 1
+
+
 typedef struct gate_descriptor
 {
     uint16_t offest_low;                    //  偏移低地址
@@ -32,5 +37,16 @@ typedef struct gate_descriptor
 
 void interrupt_init();
 
+void set_hardware_interrupt_handler(uint32_t irq, handler_t handler);
+
+void set_hardware_interrupt_mask(uint32_t irq, bool if_enable);
+
+void send_eoi(int vector);
+
+
+/// @brief 打开中断
+static inline void c_sti(){
+    asm volatile("sti");    
+}
 
 #endif
