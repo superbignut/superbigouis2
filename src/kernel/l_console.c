@@ -230,7 +230,7 @@ void console_write(char *buf, uint32_t count)
 void console_init()
 {
 
-    char _clear[] = "console init...\n";
+    char _clear[] = "\n#### CONSOLE INIT...\n";
     console_clear();    
     /* while (True)
     {

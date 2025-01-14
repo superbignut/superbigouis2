@@ -33,5 +33,5 @@ void gdt_init()
 
     asm volatile("lgdt _gdt_ptr");
     
-    printk("gdt init ...\n");
+    printk("#### GDT_C INIT ...\n");
 } 

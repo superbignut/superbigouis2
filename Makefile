@@ -40,7 +40,8 @@ QEMU := qemu-system-i386 \
 				-boot c \
 				-drive file=$(BUILD)/master.img,if=ide,index=0,media=disk,format=raw \
 				-audiodev dsound,id=audio0 \
-				-machine pcspk-audiodev=audio0 
+				-machine pcspk-audiodev=audio0 \
+				-rtc base=localtime
 
 qemu: $(BUILD)/master.img
 	$(QEMU)
@@ -96,7 +97,8 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_interrupt.o   \
 							$(BUILD_KERNEL)/l_interrupt_h.o \
 							$(BUILD_KERNEL)/l_stdlib.o		\
-							$(BUILD_KERNEL)/l_clock.o
+							$(BUILD_KERNEL)/l_clock.o		\
+							$(BUILD_KERNEL)/l_time.o
 
 							
 

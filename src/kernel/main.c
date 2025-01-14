@@ -12,20 +12,30 @@
 #include "l_interrupt.h"
 #include "l_stdlib.h"
 #include "l_clock.h"
+#include "l_time.h"
 
+
+
+/*
+    内核初始化
+
+    
+*/
 void kernel_init()
 {
-    console_init();
+    console_init();     //  光标、打印初始化
+
+    gdt_init();         //  gdt 全局描述符表初始化
+
+    interrupt_init();   //  pic、idt 初始化
+
+    clock_init();       //  8253 时钟、beep 初始化
+
+    time_init();        //  CMOS 时间初始化
+
+    // rtc              //  rtc 实时时钟初始化
+
+    // asm volatile("sti");  
     
-    gdt_init();
-
-    interrupt_init();
-
-    clock_init();
-
-    asm volatile("sti");  
-
-    start_beep();
-
     while(True);
 }

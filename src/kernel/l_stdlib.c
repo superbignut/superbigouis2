@@ -13,3 +13,8 @@ void hang()
 {
     while(True);
 }
+
+uint8_t bcd_to_bin(uint8_t bcd_data)
+{
+    return (bcd_data & 0x0f) + 10 *((bcd_data & 0xf0) >> 4);
+}

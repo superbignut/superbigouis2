@@ -2,7 +2,7 @@
 #include "l_interrupt.h"
 #include "l_io.h"
 #include "l_debug.h"
-
+#include "l_printk.h"
 
 
 static uint32_t _local_cnt = 0;
@@ -47,6 +47,7 @@ void clock_init()
     pit_init();                                                         //  8253 初始化
     set_hardware_interrupt_handler(CLOCK_IRQ, clock_handler);           //  设置中断处理函数
     set_hardware_interrupt_mask(CLOCK_IRQ, True);                       //  打开中断屏蔽字
+    printk("#### CLOCK AND BEEP INIT...\n");
 }
 
 /// @brief 开始 bee...

@@ -212,4 +212,5 @@ void interrupt_init()
 {
     idt_init();
     pic_init();
+    printk("#### IDT AND PIC INIT...\n");
 }

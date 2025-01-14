@@ -95,3 +95,25 @@ program header table 是运行时的表，由很多segment 组成，每个segmen
 ---
 
 [PE](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format) 的具体格式似乎可视化程度还高一些， 有机会再了解吧
+
+
+---
+
+之前一直觉得 在汇编里写 start 函数，然后既可以写jmp跳到 c 函数里，但一直不清楚为什么start就是入口地址，今天看了一下 GND 的 ld 找到了一个说明：
+
+[The Entry Point](https://ftp.gnu.org/pub/old-gnu/Manuals/ld-2.9.1/html_node/ld_24.html#SEC24)
+
+> The linker command language includes a command specifically for defining the first executable instruction in an output file (its entry point). Its argument is a symbol name:
+
+        ENTRY(symbol)
+
+> Like symbol assignments, the ENTRY command may be placed either as an independent command in the command file, or among the section definitions within the SECTIONS command--whatever makes the most sense for your layout.
+
+> ENTRY is only one of several ways of choosing the entry point. You may indicate it in any of the following ways (shown in descending order of priority: methods higher in the list override methods lower down).
+
++ the `-e' entry command-line option;
++ the ENTRY(symbol) command in a linker control script;
++ the value of the symbol start, if present;  <--------------- //  这一条是满足的，所以 start 函数被ld 连接成了 00地址， 进而使用 -Ttext 参数，start 就被编译到了合适的位置上
++ the address of the first byte of the .text section, if present;
++ The address 0.
+  
