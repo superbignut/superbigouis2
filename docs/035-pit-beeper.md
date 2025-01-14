@@ -17,6 +17,7 @@
 + Channel 2
 > The output of PIT channel 2 is connected to the PC speaker, so the frequency of the output determines the frequency of the sound produced by the speaker. This is the only channel where the gate input can be controlled by software (via bit 0 of I/O port 0x61), and the only channel where its output (a high or low voltage) can be read by software (via bit 5 of I/O port 0x61). Details of how to program the PC speaker can be found here.
 
+    + 这里提到了这个 gate input/pin 的作用
 
 
 I/O port     Usage
@@ -88,6 +89,23 @@ Operating mode:
 
     所以这个模式就是，一直高电平，只有当计数器减到0 的时候 会低电平一会， 然后又会重新加载计数值
 
+    然后这里应该是 结合 8259 配置的ICW1的边沿触发中断，每当（不知道是高切低，还是低切高）就会触发中断
+
+        这里看了一下，8259的手册：
+        > The powerful features of the 8259A in a microcomputer system are its programmability and the interrupt routine addressing capability. The latter allows
+        direct or indirect jumping to the specific interrupt routine requested without any polling of the interrupting
+        devices. The normal sequence of events during an
+        interrupt depends on the type of CPU being used.
+        The events occur as follows in an MCS-80/85 system:
+
+          1. One or more of the INTERRUPT REQUEST lines
+              (IR7 –0) are raised high, setting the corresponding IRR bit(s).
+              
+          2. The 8259A evaluates these requests, and sends
+              an INT to the CPU, if appropriate
+
+        所以如果8259配置成了 边沿触发模式的话，应该就是 低电平切高电平的时候会触发中断喽
+
 + Mode 3 – Square Wave Generator
 + Mode 4 – Software Triggered Strobe
 + Mode 5 – Hardware Triggered Strobe
@@ -139,3 +157,30 @@ void set_hardware_interrupt_mask(uint32_t irq, bool if_enable)
 
 
 ```
+
+
+
+> The speaker itself has two possible positions, "in" and "out". This position can be set through bit 1 of port 0x61 on the Keyboard Controller. If this bit is set (=1), the speaker will move to the "out" position, if it is cleared (=0) then the speaker will move to the "in" position. Moving in and out repeatedly produces audible tones if the speed of repetition (the frequency) is within the range the speaker can reproduce and the human ear can hear. Also, a single movement in or out makes a click sound because it's so fast. Thus, a frequency which is too low to be heard as a tone may be heard as a rattle or buzz. (In fact, any frequency produced by this system also produces higher frequencies; look up "square wave harmonics" if you're interested.)
+
+最开始还以为是，out的时候就 be， in 的时候就没有声音，结果原来是来回的频率震动发出的声音
+
+> The PC Speaker can be connected directly to the output of timer number 2 on the Programmable Interval Timer by setting bit 0 of port 0x61 (=1). In this mode, when the timer goes "high" (=1) the speaker will move to the "out" position. Likewise, when the timer goes "low" (=0) the speaker will move to the "in" position. By changing the frequency at which timer 2 "ticks", the PC Speaker can be made to output sound of the same frequency. This mode is very popular because it is easy to program and because it is asynchronous from the rest of the computer's operation, meaning that it takes very little CPU time. It should also be noted that this is the "official" way to program the PC Speaker and, if a sound card is present, should be the only way that the PC Speaker is programmed.
+
+
+然后在windows上 有些不同，
+
+qemu配置如下：
+
+```makefile
+qemu: $(BUILD)/master.img
+	qemu-system-i386 \
+				-m 32M \
+				-boot c \
+				-drive file=$<,if=ide,index=0,media=disk,format=raw \
+				-audiodev dsound,id=audio0 \
+				-machine pcspk-audiodev=audio0
+```
+
+然后我最开始一直调不出来声音，后来发现是，8253 选哟配置成 Mode 3 – Square Wave Generator 模式 和 最开始的频率模式是不一样的，
+
+并且在 bochs 中 也能 bee 出来， nice.

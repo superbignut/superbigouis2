@@ -23,8 +23,9 @@ void kernel_init()
 
     clock_init();
 
-    c_sti();
+    asm volatile("sti");  
+
+    start_beep();
 
     while(True);
-    
 }

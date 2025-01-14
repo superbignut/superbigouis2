@@ -35,11 +35,18 @@ bochs: $(BUILD)/master.img
 # @echo $(CFLAG)
 	bochsdbg -q -f ./bochsrc 
 
+QEMU := qemu-system-i386 \
+				-m 32M \
+				-boot c \
+				-drive file=$(BUILD)/master.img,if=ide,index=0,media=disk,format=raw \
+				-audiodev dsound,id=audio0 \
+				-machine pcspk-audiodev=audio0 
+
 qemu: $(BUILD)/master.img
-	qemu-system-i386 -m 32M -boot c -hda $<
+	$(QEMU)
 
 qemu-debug: $(BUILD)/master.img
-	qemu-system-i386 -s -S -m 32M -boot c -hda $<	
+	$(QEMU) -s -S 
 
 # boot.bin -> boot.asm
 # loader.bin -> loader.asm

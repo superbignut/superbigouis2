@@ -45,7 +45,12 @@ void send_eoi(int vector);
 
 
 /// @brief 打开中断
-static inline void c_sti(){
+static inline void c_sti()
+{
+    /*
+        使用 inline 函数 每次debug的时候都会影响打断点，能不用就不用
+    
+     */
     asm volatile("sti");    
 }
 
