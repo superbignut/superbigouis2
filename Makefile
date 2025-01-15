@@ -98,7 +98,8 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_interrupt_h.o \
 							$(BUILD_KERNEL)/l_stdlib.o		\
 							$(BUILD_KERNEL)/l_clock.o		\
-							$(BUILD_KERNEL)/l_time.o
+							$(BUILD_KERNEL)/l_time.o		\
+							$(BUILD_KERNEL)/l_rtc.o
 
 							
 

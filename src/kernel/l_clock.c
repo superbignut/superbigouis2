@@ -46,7 +46,7 @@ void clock_init()
 
     pit_init();                                                         //  8253 初始化
     set_hardware_interrupt_handler(CLOCK_IRQ, clock_handler);           //  设置中断处理函数
-    set_hardware_interrupt_mask(CLOCK_IRQ, True);                       //  打开中断屏蔽字
+    // set_hardware_interrupt_mask(CLOCK_IRQ, True);                       //  打开中断屏蔽字
     printk("#### CLOCK AND BEEP INIT...\n");
 }
 

@@ -89,8 +89,8 @@ time_t mktime(tm *time)
 {
     time_t res;
     // Todo 有点混乱，先不实现
-    /*     int year;                               // 1970 年开始的年数， 这里对应 python 的time 时间戳返回的就是 从1970 开始的时间
-    if (time->tm_year >= 70)                   // 下面从 1900 年开始的年数计算
+    /*     int year;                            // 1970 年开始的年数， 这里对应 python 的time 时间戳返回的就是 从1970 开始的时间
+    if (time->tm_year >= 70)                    // 下面从 1900 年开始的年数计算
         year = time->tm_year - 70;
     else
         year = time->tm_year - 70 + 100;        //  2025： 25 < 70 所以要加 100 即  100 + 25 - 70 = 55年
@@ -119,8 +119,8 @@ void time_init(){
 
     time_read(&time);
     printk("#### CMOS TIME INIT...\n");
-    // start_time = mktime(&time); 
-    DEBUGK("timestamp: 20%d-%02d-%02d %02d:%02d:%02d", 
+    
+    /* DEBUGK("timestamp: 20%d-%02d-%02d %02d:%02d:%02d\n", 
             time.tm_year, time.tm_mon, time.tm_mday,
-            time.tm_hour, time.tm_min, time.tm_sec);
+            time.tm_hour, time.tm_min, time.tm_sec); */
 }

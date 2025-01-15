@@ -20,7 +20,8 @@ typedef void *handler_t;
 
 #define CLOCK_IRQ 0
 #define KEYBOARD_IRQ 1
-
+#define CASCADE_IRQ 2
+#define RTC_IRQ 8
 
 typedef struct gate_descriptor
 {

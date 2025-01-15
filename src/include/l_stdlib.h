@@ -9,4 +9,6 @@ void delay(uint32_t count);
 
 uint8_t bcd_to_bin(uint8_t bcd_data);
 
+uint8_t bin_to_bcd(uint8_t bcd_data);
+
 #endif
