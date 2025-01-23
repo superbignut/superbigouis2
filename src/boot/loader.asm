@@ -17,7 +17,7 @@ check_memory:
 
     mov edx, 0x534d4150                         ; edx = 'SMAP' 
 
-    mov di, memory_detect_ards_buffer           ; di指向一个地址
+    mov edi, memory_detect_ards_buffer           ; di指向一个地址
     .next:                                      ; 循环标记
         mov eax, 0xe820                         ; eax e820
         mov ecx, 20                             ; 20个字节
@@ -25,8 +25,8 @@ check_memory:
 
         jc .error                               ; 判断carry是否报错, cf是eflag的最低位
 
-        add di, 20                              ; 地址移动20个
-        inc word [memory_detect_ards_num]       ; 统计数+1
+        add edi, 20                              ; 地址移动20个
+        inc dword [memory_detect_ards_num]      ; 统计数+1 （32位）
         cmp ebx, 0                              ; 判断是不是0,是0结束,不用改
     jnz .next                                   ; 循环
 
@@ -37,7 +37,7 @@ check_memory:
     jmp prepare_for_protected_mode  ; 跳到保护模式准备阶段
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 下面的代码用于显示哪些内存布局可用，进入保护模式则跳过 ;;;;;;;;;;;;;;;;;;
-    mov word cx, [memory_detect_ards_num]               ; 有多少个 ards
+    mov dword ecx, [memory_detect_ards_num]               ; 有多少个 ards (32位)
     mov si, 0
     mov ax, 0
     mov es, ax
@@ -131,7 +131,12 @@ protect_enable:
     mov bl, 200             ; 总共读200个扇区
     
     call read_disk
-
+                            ; 跳转到 kernel 代码之前，先保存了 魔数 和 ards 内存检测的数量
+    mov eax, 20241130       ; 自定义魔数
+    ; xchg bx, bx
+    mov dword ebx, memory_detect_ards_num       ; 第二个参数
+    mov ecx, memory_detect_ards_buffer          ; 第三个参数
+                            ; 跳转到 内核初始化代码
     jmp code_selector : 0x10000
 
 
@@ -273,9 +278,9 @@ prepare_for_protected_mode_str:
     db "Preparing P Mode...", 10, 13, 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 内存检测辅助字段 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-memory_detect_ards_num:     ; 用来统计内存检测返回了多少个ards
-    dw 0
 memory_detect_str:
     db "Detecting Memory...", 10, 13, 0
+memory_detect_ards_num:     ; 用来统计内存检测返回了多少个ards
+    dd 0                    ; 16 位改成 32 位
 memory_detect_ards_buffer:  ; 存储内存检测 ards 的首地址
 

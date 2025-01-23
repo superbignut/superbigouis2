@@ -25,6 +25,8 @@ void kernel_init()
 {
     console_init();         //  光标、打印初始化
 
+    return;
+
     gdt_init();             //  gdt 全局描述符表初始化
 
     interrupt_init();       //  pic、idt 初始化

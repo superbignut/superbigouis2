@@ -85,8 +85,8 @@ void rtc_init()
     set_alarm_sec(2);                               //  设定若干秒后 发生 闹钟中断 
 
     set_hardware_interrupt_handler(RTC_IRQ, rtc_handler);
-    set_hardware_interrupt_mask(RTC_IRQ, True);
-    set_hardware_interrupt_mask(CASCADE_IRQ, True); // 这里因为 rtc 的中断在从片上了，需要打开从片
+    // set_hardware_interrupt_mask(RTC_IRQ, True);      //  不用的话，就先关了吧
+    // set_hardware_interrupt_mask(CASCADE_IRQ, True);  //  这里因为 rtc 的中断在从片上了，需要打开从片
 
     printk("#### RTC INIT...\n");
 }
