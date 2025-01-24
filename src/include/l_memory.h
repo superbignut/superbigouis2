@@ -9,7 +9,9 @@
 #define ARDS_VALID 1                            //  有效的地址
 #define ARDS_RESERVED 2                         //  无效的地址
 
-#define IDX(addr) (((uint32_t)addr) >> 12)      //  
+#define IDX(addr) (((uint32_t)(addr)) >> 12)                      //  页表索引，右移12位
+#define PAGE(idx) ((uint32_t)(idx) << 12)                         //  页的开始地址
+#define ASSERT_PAGE(addr) assert(((addr) & 0xfff) == 0)             //  检验是否是页地址，低 12位为0
 
 /*
     Address Range Descriptor Structure 
@@ -27,6 +29,7 @@ typedef struct ards_ptr
     uint32_t type;
 } _packed ards_ptr;
 
+void memory_map_init();
 
 #endif
 

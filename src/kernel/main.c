@@ -14,7 +14,7 @@
 #include "l_clock.h"
 #include "l_time.h"
 #include "l_rtc.h"
-
+#include "l_memory.h"
 
 /*
     内核初始化
@@ -23,11 +23,13 @@
 */
 void kernel_init()
 {
-    console_init();         //  光标、打印初始化
+    // console_init();         //  光标、打印初始化
 
-    return;
+    // return;
 
-    gdt_init();             //  gdt 全局描述符表初始化
+    // gdt_init();             //  gdt 全局描述符表初始化
+
+    memory_map_init();
 
     interrupt_init();       //  pic、idt 初始化
 
@@ -37,7 +39,7 @@ void kernel_init()
 
     rtc_init();             //  rtc 实时时钟初始化
 
-    asm volatile("sti");    //  开中断
+    // asm volatile("sti");    //  开中断
 
     while(True);            //  死循环
 }

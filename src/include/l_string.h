@@ -19,7 +19,7 @@ size_t string_len(const char *str);
 
 
 
-void *memort_set(void *dest, int ch, size_t count);
+void *memory_set(void *dest, int ch, size_t count);
 
 void* memory_copy(void *dest, const void *src, size_t count);
 
