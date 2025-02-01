@@ -19,3 +19,26 @@
 
 > x  /nuf addr      Examine memory at linear address addr>
 > xp /nuf addr      Examine memory at physical address addr
+
+
++ 补充查看 gdt 和 page 的 命令：
+
+
+  r|reg|regs|registers         List of CPU integer registers and their contents
+  fp|fpu                       List of all FPU registers and their contents
+  mmx                          List of all MMX registers and their contents
+  sse|xmm                      List of all SSE registers and their contents
+  ymm|zmm                      List of all AVX registers and their contents
+  amx|tile n                   Show AMX state and TILE register contents
+  sreg                         Show segment registers and their contents
+  dreg                         Show debug registers and their contents
+  creg                         Show control registers and their contents
+
+  info cpu                     List of all CPU registers and their contents
+  info eflags                  Show decoded EFLAGS register
+  info break                   Information about current breakpoint status
+  info tab                     Show paging address translation
+  info idt                     Show contents of the IDT
+  info gdt                     Show contents of the GDT
+  info ldt                     Show contents of the LDT
+  info device                  Show state of the specified device
