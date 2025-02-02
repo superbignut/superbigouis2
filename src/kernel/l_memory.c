@@ -57,6 +57,11 @@ void memory_init(uint32_t magic, uint32_t ards_num_ptr, uint32_t ards_buffer_ptr
     {
         panic("memory_init error.\n");
     }
+
+    if(memory_size < KERNEL_MEMORY_SIZE)                //  内存检测的大小，不能小于内核的内存需求大小， 这里是 4MB * 内存页数
+    {
+        panic("max memory detected is smaller than kernel needed.\n");
+    }
 }
 
 static uint8_t *memory_map_array;               //  物理内存数组, 放在最初的页中，每个编号的字节 代表当前编号的页 被引用的次数
@@ -160,40 +165,88 @@ static void page_entry_init(page_entry *entry, uint32_t idx)
     entry->index = idx;
 }
 
-/// 内核页目录
-#define KERNEL_PAGE_DIR   0x200000
-/// 内核页表
-#define KERNEL_PAGE_ENTRY 0x201000
 
-
+/// @brief 初始化内存映射，配置页目录、页表， 将虚拟页 映射到 物理页上
 void paging_init()
 {
     assert(sizeof(page_entry) == 4);                        //  检测页表项结构体
 
     page_entry *pde = (page_entry *)KERNEL_PAGE_DIR;        //  创建一个页目录
     memory_set(pde, 0, PAGE_SIZE);
-    
-    page_entry_init(&pde[0], IDX(KERNEL_PAGE_ENTRY));       //  初始化 页目录 的第0个 页表项 指向内核页表
 
-    page_entry *pte = (page_entry *)KERNEL_PAGE_ENTRY;      //  内核页表
-    memory_set(pte, 0, PAGE_SIZE);
+    uint32_t index = 0;                                     //  全局物理页的 index
 
-    page_entry *entry;
-
-    for(size_t tindex = 0; tindex < INDEX_NUM_PER_PAGE; ++tindex)        //  将第一个页全部赋值 总共映射1K个页 也即 4MB 的物理内存
+    for(uint32_t idx_dir = 0; idx_dir < KERNEL_PAGE_NUM; ++idx_dir)
     {
-        entry = &pte[tindex];
-        page_entry_init(entry, tindex);                                 //  把 tindex 号物理页 映射到 tindex 的 pte 中
-        memory_map_array[tindex] += 1;                                  //  前1k个页的 物理内存使用次数 +1
+        page_entry *pte = (page_entry *)KERNEL_PAGE_TABLE[idx_dir];                 //  遍历页表
+        
+        memory_set(pte, 0, PAGE_SIZE);
+
+        page_entry_init(&pde[idx_dir], IDX(pte));                                   //  配置页目录
+
+        page_entry *entry;
+
+        for(size_t idx_table = 0; idx_table < INDEX_NUM_PER_PAGE; ++idx_table, ++index)      //  将第一个页全部赋值 总共映射1K个页 也即 4MB 的物理内存
+        {
+            
+            entry = &pte[idx_table];                                                
+
+            if(index == 0)                                                          //  0号页不参与映射, 对0 号页的访问会失败
+            {
+                memory_set(entry, 0, sizeof(page_entry));                           //  页表项清零
+                continue;
+                /*
+                    If a paging-structure entry’s P flag (bit 0) is 0 or if the entry sets any reserved bit, the entry is used neither to refer-
+                    ence another paging-structure entry nor to map a page. There is no translation for a linear address whose transla-
+                    tion would use such a paging-structure entry; a reference to such a linear address causes a page-fault exception
+                    (see Section 5.7).
+                */
+            }
+                                                                                    //  下面两行为，映射物理页， 编号为 index 
+            page_entry_init(entry, index);                                          //  把 tindex 号物理页 映射到 tindex 的 pte 中
+
+            memory_map_array[index] += 1;                                           //  前1k个页的 物理内存使用次数 +1
+        }
     }
+
+    page_entry *last_entry = &pde[INDEX_NUM_PER_PAGE-1];                            //  页目录的最后一个页表项
+
+    page_entry_init(last_entry, IDX(KERNEL_PAGE_DIR));                              //  指向自己
 
     set_cr3((uint32_t)pde);
 
     enable_32bit_paging();
 
+    XBB;
+
     printk("#### PAGING INIT...\n");
+    /*
+        <bochs:2> info tab
+        cr3: 0x000000001000
+        0x0000000000001000-0x00000000007fffff -> 0x000000001000-0x0000007fffff
+        0x00000000ffc00000-0x00000000ffc01fff -> 0x000000002000-0x000000003fff
+        0x00000000fffff000-0x00000000ffffffff -> 0x000000001000-0x000000001fff
+    */
 }
 
+/// @brief 返回页目录 的 首地址
+/// @return 
+static page_entry *get_pde()
+{
+    return (page_entry*)0xfffff000;     //  返回第0个页目录
+}
+
+/// @brief 返回地址所在页表 的 首地址
+/// @param addr 
+/// @return 
+static page_entry *get_pte(uint32_t addr)
+{
+    return (page_entry*)(0xfffff000 | IDX_DIR(addr) << 12);
+    /*
+        0x0      - 0x3fffff 返回 0xffc00000
+        0x400000 - 0x7fffff 返回 0xffc01000 
+    */
+}
 /* void mem_test()
 {
     uint32_t pgs[12];
@@ -206,3 +259,8 @@ void paging_init()
         put_page(pgs[i]);
     }
 } */
+
+void paging_test()
+{
+    // todo
+}

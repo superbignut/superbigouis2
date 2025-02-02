@@ -10,9 +10,27 @@
 #define ARDS_VALID 1                            //  有效的地址
 #define ARDS_RESERVED 2                         //  无效的地址
 
+
+/// 内核页目录
+#define KERNEL_PAGE_DIR 0x1000                  //  把loader 的地址覆盖
+
+/// 内核页表
+static uint32_t KERNEL_PAGE_TABLE[] = {
+  0x2000,
+  0x3000,
+};
+
+#define KERNEL_PAGE_NUM (sizeof(KERNEL_PAGE_TABLE) / sizeof(uint32_t))
+
+#define KERNEL_MEMORY_SIZE (0x400000 * KERNEL_PAGE_NUM)      //  内核页表能映射的内存， 一个页 4MB
+                                                                                          //  也即 内核使用的内存 0 - 8MB
 #define IDX(addr) (((uint32_t)(addr)) >> 12)                      //  页表索引，右移12位
 #define PAGE(idx) ((uint32_t)(idx) << 12)                         //  页的开始地址
-#define ASSERT_PAGE(addr) assert(((addr) & 0xfff) == 0)             //  检验是否是页地址，低 12位为0
+
+#define IDX_DIR(addr) (((uint32_t)addr) >> 22)                    //  页目录编号 最高10位
+#define IDX_TABLE(addr) ((((uint32_t)addr) >> 12) & 0x3ff)        //  页表编号 中间10位
+
+#define ASSERT_PAGE(addr) assert(((addr) & 0xfff) == 0)           //  检验是否是页地址，低 12位为0
 
 /*
     Address Range Descriptor Structure 
