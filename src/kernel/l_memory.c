@@ -217,8 +217,6 @@ void paging_init()
 
     enable_32bit_paging();
 
-    XBB;
-
     printk("#### PAGING INIT...\n");
     /*
         <bochs:2> info tab
@@ -226,6 +224,7 @@ void paging_init()
         0x0000000000001000-0x00000000007fffff -> 0x000000001000-0x0000007fffff
         0x00000000ffc00000-0x00000000ffc01fff -> 0x000000002000-0x000000003fff
         0x00000000fffff000-0x00000000ffffffff -> 0x000000001000-0x000000001fff
+        左边是线性地址, 右边是物理地址
     */
 }
 
@@ -241,10 +240,76 @@ static page_entry *get_pde()
 /// @return 
 static page_entry *get_pte(uint32_t addr)
 {
-    return (page_entry*)(0xfffff000 | IDX_DIR(addr) << 12);
+    return (page_entry*)(0xffc00000 | IDX_DIR(addr) << 12);
     /*
         0x0      - 0x3fffff 返回 0xffc00000
         0x400000 - 0x7fffff 返回 0xffc01000 
+    */
+}
+
+/// @brief 返回虚拟地址 对应的页目录的 页表项
+/// @param vvaddr 
+/// @return 
+static page_entry *get_vaddr_pde_entry(uint32_t vaddr)
+{
+    page_entry *pde = get_pde();
+
+    return &pde[IDX_DIR(vaddr)];
+}
+
+/// @brief 返回虚拟地址 对应的页表的 页表项
+/// @param vvaddr 
+/// @return 
+static page_entry *get_vaddr_pte_entry(uint32_t vaddr)
+{
+    page_entry *pte = get_pte(vaddr);
+
+    return &pte[IDX_TABLE(vaddr)];
+}
+
+/// @brief 将虚拟地址对应的页目录的页表项 进行修改
+/// @param vaddr 
+/// @param table_index IDX 之后的编号
+/// @return 
+static page_entry *set_vaddr_pde_entry_with_index(uint32_t vaddr, uint32_t table_index)
+{
+    page_entry *dir_entry = get_vaddr_pde_entry(vaddr);
+    page_entry_init(dir_entry, table_index);
+}
+
+/// @brief 将虚拟地址对应的页表的页表项 进行修改
+/// @param vaddr 
+/// @param paddr_index IDX 之后的编号
+/// @return 
+static page_entry *set_vaddr_pte_entry_with_index(uint32_t vaddr, uint32_t paddr_index)
+{
+    page_entry *table_entry = get_vaddr_pte_entry(vaddr);
+    page_entry_init(table_entry, paddr_index);
+}
+
+/// @brief 无效指定虚拟地址的快表 (修改虚拟地址对应的页表之后执行)
+/// @param vaddr 
+static void disable_tlb(uint32_t vaddr)
+{
+    asm volatile("invlpg (%0)" ::"r"(vaddr): "memory");         //  memory 表示内存会被修改
+
+    /*
+
+        https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+
+        When not using an asmSymbolicName, use the (zero-based) position of the operand 
+        in the list of operands in the assembler template. For example if there are two 
+        output operands and three inputs, use ‘%2’ in the template to refer to the first
+        input operand, ‘%3’ for the second, and ‘%4’ for the third.
+
+        The "memory" clobber tells the compiler that the assembly code performs memory 
+        reads or writes to items other than those listed in the input and output operands 
+        (for example, accessing the memory pointed to by one of the input parameters). To
+        ensure memory contains correct values, GCC may need to flush specific register 
+        values to memory before executing the asm. Further, the compiler does not assume 
+        that any values read from memory before an asm remain unchanged after that asm; 
+        it reloads them as needed. Using the "memory" clobber effectively forms a read/write 
+        memory barrier for the compiler.
     */
 }
 /* void mem_test()
@@ -260,7 +325,47 @@ static page_entry *get_pte(uint32_t addr)
     }
 } */
 
+/// @brief 将一个大于 内存的虚拟地址映射到 一个物理地址上
+///        更新快表并测试
 void paging_test()
 {
-    // todo
+    XBB;
+
+    uint32_t vaddr = 0x4000000;   // 64 MB 虚拟地址
+    uint32_t paddr = 0x1400000;   // 20 MB 物理地址
+    uint32_t pt = 0x900000;     // 页表
+
+    /* page_entry *pde = get_pde();
+
+    page_entry *dir_entry = &pde[IDX_DIR(vaddr)];
+
+    page_entry_init(dir_entry, IDX(pt));       //  页目录 指向 页表 */
+
+
+    set_vaddr_pde_entry_with_index(vaddr, IDX(pt));
+
+    /* page_entry *pte = get_pte(vaddr);
+
+    page_entry *table_entry = &pte[IDX_TABLE(vaddr)];
+
+    page_entry_init(table_entry, IDX(paddr));     //  页表映射到物理页上 */
+
+    set_vaddr_pte_entry_with_index(vaddr, IDX(paddr));
+
+    
+    XBB;
+
+
+    char *ptr = (char *)(0x4000000);
+    ptr[0] = 'a';
+
+    XBB;
+
+    set_vaddr_pte_entry_with_index(vaddr, IDX(0x1500000)); //  改变物理映射
+
+    disable_tlb(vaddr);
+
+    ptr[2] = 'b';
+
+    XBB;
 }

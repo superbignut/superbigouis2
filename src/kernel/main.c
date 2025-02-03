@@ -16,22 +16,15 @@
 #include "l_rtc.h"
 #include "l_memory.h"
 
-/*
-    内核初始化
-
-    
-*/
 void kernel_init()
 {
     // console_init();      //  光标、打印初始化
-
-    // return;
 
     // gdt_init();          //  gdt 全局描述符表初始化
 
     memory_map_init();      //  内存页初始化
 
-    paging_init();
+    paging_init();          //  分页初始化
 
     interrupt_init();       //  pic、idt 初始化
 
@@ -42,8 +35,6 @@ void kernel_init()
     rtc_init();             //  rtc 实时时钟初始化
 
     // asm volatile("sti");    //  开中断
-
-    XBB;
 
     while(True);            //  死循环
 }
