@@ -2,6 +2,8 @@
     "files.associations": {
         "l_os.h": "c",
         "l_console.h": "c",
-        "l_stdargs.h": "c"
+        "l_stdargs.h": "c",
+        "l_rtc.h": "c",
+        "l_bitmap.h": "c"
     }
 }

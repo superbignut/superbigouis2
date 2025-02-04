@@ -163,3 +163,19 @@ void paging_init()
         0x00000000fffff000-0x00000000ffffffff -> 0x000000001000-0x000000001fff
     */
 ```
+
+
+#### 042-快表
+
+这里只涉及到一个 当页表被修改后 需要取消对应的快表的命令：
+
+```cpp
+static void disable_tlb(uint32_t vaddr)
+{
+    asm volatile("invlpg (%0)" ::"r"(vaddr): "memory");         //  memory 表示内存会被修改
+}
+
+```
+
+这里是参考 osdev [tlb](https://wiki.osdev.org/TLB)
+

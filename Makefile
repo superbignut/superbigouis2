@@ -30,11 +30,6 @@ CC = gcc
 
 .PHONY: bochs clean qemu qemug test
 
-bochs: $(BUILD)/master.img
-# 启动bochs
-# @echo $(CFLAG)
-	bochsdbg -q -f ./bochsrc 
-
 QEMU := qemu-system-i386 \
 				-m 32M \
 				-boot c \
@@ -49,6 +44,11 @@ qemu: $(BUILD)/master.img
 qemu-debug: $(BUILD)/master.img
 	$(QEMU) -s -S 
 
+bochs: $(BUILD)/master.img
+# 启动bochs
+# @echo $(CFLAG)
+	bochsdbg -q -f ./bochsrc 
+	
 # boot.bin -> boot.asm
 # loader.bin -> loader.asm
 # system.bin -> kernel.bin -> start.o -> start.asm
@@ -100,8 +100,8 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_clock.o		\
 							$(BUILD_KERNEL)/l_time.o		\
 							$(BUILD_KERNEL)/l_rtc.o			\
-							$(BUILD_KERNEL)/l_memory.o
-
+							$(BUILD_KERNEL)/l_memory.o		\
+							$(BUILD_KERNEL)/l_bitmap.o
 							
 
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接

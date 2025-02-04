@@ -15,6 +15,7 @@
 #include "l_time.h"
 #include "l_rtc.h"
 #include "l_memory.h"
+#include "l_bitmap.h"
 
 void kernel_init()
 {
@@ -35,6 +36,10 @@ void kernel_init()
     rtc_init();             //  rtc 实时时钟初始化
 
     // asm volatile("sti");    //  开中断
+
+    extern void bitmap_test();
+
+    bitmap_test();
 
     while(True);            //  死循环
 }
