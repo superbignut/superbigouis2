@@ -4,6 +4,8 @@
         "l_console.h": "c",
         "l_stdargs.h": "c",
         "l_rtc.h": "c",
-        "l_bitmap.h": "c"
+        "l_bitmap.h": "c",
+        "compare": "c",
+        "type_traits": "c"
     }
 }

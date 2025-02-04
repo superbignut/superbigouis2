@@ -312,6 +312,24 @@ static void disable_tlb(uint32_t vaddr)
         memory barrier for the compiler.
     */
 }
+
+/// @brief 分配 count 个连续内核页
+/// @param count 
+/// @return 
+uint32_t alloc_k_page(uint32_t count)
+{
+
+}
+
+/// @brief 释放 count 个连续内核页
+/// @param vaddr 
+/// @param count 
+void free_k_page(uint32_t vaddr, uint32_t count)
+{
+
+}
+
+
 /* void mem_test()
 {
     uint32_t pgs[12];

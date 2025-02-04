@@ -179,3 +179,29 @@ static void disable_tlb(uint32_t vaddr)
 
 这里是参考 osdev [tlb](https://wiki.osdev.org/TLB)
 
+
+#### 043-bitmap
+
+位图的代码主要围绕 bitmap 结构体展开：
+
+```cpp
+
+typedef struct bitmap_t
+{
+    uint8_t *bits;      //  位图指针（缓冲区）
+
+    uint32_t length;    //  位图缓冲区数组 长度， 以字节为单位
+
+    uint32_t offset;    //  index 减去 offset 后作为位图索引
+} bitmap_t;
+
+int bitmap_scan(bitmap_t *map, uint32_t count);
+
+```
+
++ 首先 bits 用来存放位图指针的初始地址，也即是用每一位来代表一个页是否空闲
+
++ length 用来标记 bits 有多少个字节长， 如果用 vector<int> bitmap 来表示 其实就是 len(bitmap)
+
++ offset 其实有点特别，假设有一段 bits 的位图缓冲区，如果我想另起一个 bitmap 其实就可以 再新建一个 bitmap 但是
+  设定一个 offset 从而允许一定的偏移量， 也即 同一段地址，但是不同的 offset，bitmap_scan 扫描就会找到不同的结果

@@ -75,5 +75,9 @@ void set_cr3(uint32_t pde);
 
 void paging_init();
 
+uint32_t alloc_k_page(uint32_t count);
+
+void free_k_page(uint32_t vaddr, uint32_t count);
+
 #endif
 
