@@ -13,6 +13,8 @@ static uint32_t start_page = 0;                         //  被分配的起始�
 static uint32_t total_pages = 0;                        //  总页数
 static uint32_t free_pages = 0;                         //  空闲页数
 
+bitmap_t kernel_bitmap;                                    //  内核位图结构体
+
 // #define used_pages (total_pages - free_pages)           // 已用页数
 
 /// @brief 读取内存检测 buffer，从 start 中跳入， 输入参数在 loader 中传递入栈
@@ -67,7 +69,7 @@ void memory_init(uint32_t magic, uint32_t ards_num_ptr, uint32_t ards_buffer_ptr
 static uint8_t *memory_map_array;               //  物理内存数组, 放在最初的页中，每个编号的字节 代表当前编号的页 被引用的次数
 static uint32_t memory_map_pages_used;          //  已被 物理内存数组 占用的页数 >= 1 页， 类似于页目录的概念
 
-/// @brief 初始化物理内存-物理页
+/// @brief 初始化物理内存-物理页， 初始化虚拟页-位图
 void memory_map_init()
 {   
     memory_map_array = (uint8_t *)memory_base;
@@ -84,6 +86,27 @@ void memory_map_init()
         memory_map_array[i] = 1;                                                //  物理内存数组 占用标记
     }
     printk("#### MEMORY MAP INIT...\n");
+
+
+
+    //  前面为初始化物理内存数组，接下来位 初始化虚拟内存页-位图， 8位一个字节
+    uint32_t len = (IDX(KERNEL_MEMORY_SIZE) - IDX(MEMORY_BASE_ADDR)) / 8;                       //  (IDX(8M) - IDX(1M)) / 8 = 224 ，8 位一个字节
+
+    uint32_t offset =  IDX(MEMORY_BASE_ADDR);                                                   //  前 1M的页 不考虑， 设置偏移
+
+    bitmap_init(&kernel_bitmap, (char *)KERNEL_BITMAP_ADDR, len, offset);                       //  offset 的用处就在于跳过 某些不需要考虑的字节
+    
+    int tmp = bitmap_scan(&kernel_bitmap, memory_map_pages_used);                               //  为物理内存数组分配虚拟内存页 
+                                                                                                //  也就是最开始的两页 返回 256 即 IDX(MEMORY_BASE_ADDR)
+    assert(tmp == IDX(MEMORY_BASE_ADDR));                                                       //  分配结果 原则上就是 offset
+
+    /*
+        这里按照测试的代码来看 memory_map_pages_used = 2，因此分配了2个页后
+
+        kernel_bitmap 从 0x102000 开始的 bitmap 为空闲位，一直到 0x7ff000
+
+        一共 0x800 - 0x100 - 2 = 0x6fe 个 空闲的内核页
+    */
 }
 
 /// @brief 申请页表, 返回页首地址
@@ -313,22 +336,73 @@ static void disable_tlb(uint32_t vaddr)
     */
 }
 
-/// @brief 分配 count 个连续内核页
+/// @brief 封装 bitmap， 从 bitmap_scan 得到的 index 返回 32位页首地址
+/// @param map 
 /// @param count 
 /// @return 
-uint32_t alloc_k_page(uint32_t count)
+static uint32_t scan_page(bitmap_t *map, uint32_t count)
 {
+    int index = bitmap_scan(map, count);        //  失败返回 -1
 
+    if(index == -1)
+    {
+        panic("scan_page error!");
+    }
+    uint32_t addr = PAGE(index);                //  恢复页地址
+
+    return addr;                                //  返回页地址
+}
+
+/// @brief 从 addr 开始回收 cont 的 map 页， addr 为有效 页首地址
+/// @param map 
+/// @param count 
+/// @return 
+static uint32_t reset_page(bitmap_t *map, uint32_t addr, uint32_t count)
+{
+    ASSERT_PAGE(addr);                  //  有效页首地址
+    uint32_t index = IDX(addr);
+
+    for(int i = 0; i < count; ++i)
+    {
+        assert(bitmap_check(map, index + i) == 1);
+        bitmap_set(map, index + i, 0);
+        assert(bitmap_check(map, index + i) == 0);
+    }
+}
+
+/// @brief 分配 count 个连续内核页, 返回起始页的 首地址
+/// @param count 
+/// @return 
+uint32_t alloc_kernel_page(uint32_t count)
+{
+    uint32_t addr = scan_page(&kernel_bitmap, count);
+    return addr;
 }
 
 /// @brief 释放 count 个连续内核页
-/// @param vaddr 
+/// @param vaddr 起始页的首地址
 /// @param count 
-void free_k_page(uint32_t vaddr, uint32_t count)
+void free_kernel_page(uint32_t vaddr, uint32_t count)
 {
-
+    ASSERT_PAGE(vaddr);
+    reset_page(&kernel_bitmap, vaddr, count);
 }
 
+/// @brief 测试 memory_map_init 初始化位图后 还能继续 分配多少个内核页， 对最大值 0x6fe 进行测试，并测试 free
+void memory_test2()
+{
+    uint32_t *pages = (uint32_t *)(0x200000);
+    uint32_t count = 0x6fe;                 //  这里最大是 0x6fe个页, 0x200 + 2 + 0x6fe = 0x800  
+    for (size_t i = 0; i < count; i++)
+    {
+        pages[i] = alloc_kernel_page(1);
+        printk("0x%x 0x%x\n", i, pages[i]);
+    }
+    for (size_t i = 0; i < count; i++)
+    {
+        free_kernel_page(pages[i], 1);
+    }
+}
 
 /* void mem_test()
 {

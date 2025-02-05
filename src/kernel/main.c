@@ -37,9 +37,12 @@ void kernel_init()
 
     // asm volatile("sti");    //  开中断
 
-    extern void bitmap_test();
+    extern void memory_test2();
+    // extern void bitmap_test();
 
-    bitmap_test();
+    // bitmap_test();
+
+    memory_test2();
 
     while(True);            //  死循环
 }

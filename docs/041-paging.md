@@ -205,3 +205,47 @@ int bitmap_scan(bitmap_t *map, uint32_t count);
 
 + offset 其实有点特别，假设有一段 bits 的位图缓冲区，如果我想另起一个 bitmap 其实就可以 再新建一个 bitmap 但是
   设定一个 offset 从而允许一定的偏移量， 也即 同一段地址，但是不同的 offset，bitmap_scan 扫描就会找到不同的结果
+
++ 很显然 上面的 offset 的表述 是错的，下面的代码是在 memory_map_init 中 初始化 物理内存页数组 后面 初始化 虚拟内存位图的代码
+
+
+```cpp
+    //  前面为初始化物理内存数组，接下来位 初始化虚拟内存页-位图， 8位一个字节
+    uint32_t len = (IDX(KERNEL_MEMORY_SIZE) - IDX(MEMORY_BASE_ADDR)) / 8;                       //  (IDX(8M) - IDX(1M)) / 8 = 224 ，8 位一个字节
+
+    uint32_t offset =  IDX(MEMORY_BASE_ADDR);                                                   //  前 1M的页 不考虑， 设置偏移
+
+    bitmap_init(&kernel_map, (char *)KERNEL_BITMAP_ADDR, len, offset);                          //  offset 的用处就在于跳过 某些不需要考虑的字节
+    
+    int tmp = bitmap_scan(&kernel_map, memory_map_pages_used);                                  //  为物理内存数组分配虚拟内存页 
+                                                                                                //  也就是最开始的两页 返回 256 即 IDX(MEMORY_BASE_ADDR)
+    assert(tmp == IDX(MEMORY_BASE_ADDR));                                                       //  分配结果 原则上就是 offset
+```
+
+    因此可以看到 offset 真正的用处在于，就是为了和全局页表编号对齐，比如要跳过 1MB 内存的页 也就 0x100 个页，但是我在外部访问的时候，比如 check 和set 函数：
+
+    ```cpp
+        static uint32_t reset_page(bitmap_t *map, uint32_t addr, uint32_t count)
+        {
+            ASSERT_PAGE(addr);                  //  有效页首地址
+            uint32_t index = IDX(addr);         //  全局页号
+
+            for(int i = 0; i < count; ++i)
+            {
+                assert(bitmap_check(map, index + i) == 1);      //  全局页号
+                bitmap_set(map, index + i, 0);                  // 全局页号
+            }
+        }
+    ```
+
+    时，仍然可以使用全局 的页IDX 来进行操作，将具体的转换留在 bitmap 的操作内部
+
+
+其实，虚拟页的位图 和 物理内存数组 还是有一点区别的，
+
++ 物理内存数组 是用来标记 32MB / 4KB = 8192 个 物理页 的使用情况的标记位
+    + 这里记录下 物理内存页的 2 个页的计算
+    + 32MB / 4KB 也就是 2^13 = 8K = 8192， 每个页中 的一个字节用来 标记这个页的占用的话，一页可以表示 4K个
+      因此 8K / 4K = 2 也就是 memory_map_pages_used = 2 的原因
+      
++ bitmap 暂时是用来 标记 0-8MB 的内存页 的使用情况的标记

@@ -27,7 +27,7 @@ void bitmap_init(bitmap_t *map, char *bits, uint32_t length, uint32_t offset)
 
 /// @brief 检测 map 的某一位是否 为 1
 /// @param map 
-/// @param index 
+/// @param index 全局页号
 /// @return 
 bool bitmap_check(bitmap_t *map, uint32_t index)
 {
@@ -46,8 +46,8 @@ bool bitmap_check(bitmap_t *map, uint32_t index)
 
 /// @brief 设置 map 的某一位
 /// @param map 
-/// @param index 
-/// @param value 
+/// @param index 全局页号
+/// @param value 1 占用， 0 空闲
 void bitmap_set(bitmap_t *map, uint32_t index, bool value)
 {
     assert(value == 0 || value == 1);
@@ -70,12 +70,14 @@ void bitmap_set(bitmap_t *map, uint32_t index, bool value)
     }
 }
 
-/// @brief 从位图中找到 可用的 count 个 "连续" 内存页， 返回 index 
+/// @brief 从位图中找到 可用的 count 个 "连续" 内存页， 返回 index 或 -1
 /// @param map 
-/// @param count 
+/// @param count 需要大于 0 
 /// @return 
 int bitmap_scan(bitmap_t *map, uint32_t count)
 {
+    assert(count > 0);                              //  不允许 count = 0 
+
     int start = EOF;                                //  连续地址的开始，用于返回
 
     // uint32_t bits_to_check = map->length * 8;    //  总共的位数
@@ -117,8 +119,8 @@ int bitmap_scan(bitmap_t *map, uint32_t count)
     while(bits_already_find--)
     {
         //  找到后 bitmap 置 1
-        // next_bit--;
         bitmap_set(map, map->offset + i, 1);
+        --i;
     }
 
     return start + map->offset;                 //  返回 连续空闲页的开始 index 
@@ -136,12 +138,23 @@ void bitmap_test()
 
     uint8_t buf[len];
 
-    bitmap_init(&map, buf, len, 0);
+    bitmap_init(&map, buf, len, 10);
 
-    for(int i = 0; i < 18; ++i)
+
+    int idx = bitmap_scan(&map, 3);
+
+    printk("%d\n", idx);
+    idx = bitmap_scan(&map, 1);
+
+    printk("%d\n", idx);
+
+    idx = bitmap_scan(&map, 1);
+
+    printk("%d\n", idx);
+    /* for(int i = 0; i < 18; ++i)
     {
         int idx = bitmap_scan(&map, 1);
 
         printk("%d\n", idx);
-    }
+    } */
 }

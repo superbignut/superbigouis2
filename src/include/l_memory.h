@@ -2,6 +2,7 @@
 #define LMEMORY_H_
 
 #include "l_types.h"
+#include "l_bitmap.h"
 
 #define PAGE_SIZE 0x1000                        //  页的大小
 #define MEMORY_BASE_ADDR 0x100000               //  内存起始基地址 1M 以外的地址
@@ -19,6 +20,8 @@ static uint32_t KERNEL_PAGE_TABLE[] = {
   0x2000,
   0x3000,
 };
+
+#define KERNEL_BITMAP_ADDR 0x4000                    //  位图开始地址
 
 #define KERNEL_PAGE_NUM (sizeof(KERNEL_PAGE_TABLE) / sizeof(uint32_t))
 
@@ -75,9 +78,9 @@ void set_cr3(uint32_t pde);
 
 void paging_init();
 
-uint32_t alloc_k_page(uint32_t count);
+uint32_t alloc_kernel_page(uint32_t count);
 
-void free_k_page(uint32_t vaddr, uint32_t count);
+void free_kernel_page(uint32_t vaddr, uint32_t count);
 
 #endif
 

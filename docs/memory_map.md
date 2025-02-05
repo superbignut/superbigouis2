@@ -8,6 +8,8 @@
 
 + 0x4000 内核 虚拟内存位图 bitmap
 
++ 0x10000 内核栈底， loader 中设定
+
 + 0x10000 kernel.bin kernel 代码开始
 
 + 0x29000 kernel.bin kernel 代码结束 0x10000 + 200 * 0x512 = 0x29000
