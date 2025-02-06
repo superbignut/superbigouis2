@@ -1,7 +1,7 @@
-    global _task_switch
+    global _task_switch, _task_switch_deprecated
       
 _task_switch:                   ;  传入的参数是 next 表示需要切换的函数的页的首地址
-
+_task_switch_deprecated:
         push ebp
         mov ebp, esp           ;  保存栈帧
 

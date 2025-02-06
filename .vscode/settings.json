@@ -6,6 +6,13 @@
         "l_rtc.h": "c",
         "l_bitmap.h": "c",
         "compare": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "l_task.h": "c",
+        "l_printk.h": "c",
+        "l_interrupt.h": "c",
+        "l_clock.h": "c",
+        "l_assert.h": "c",
+        "cmath": "c",
+        "l_memory.h": "c"
     }
 }

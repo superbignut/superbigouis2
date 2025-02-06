@@ -89,7 +89,7 @@ uint32_t _ofp thread_b()
     quent IRET instruction restores the IF flag to its value in the saved contents of the EFLAGS register on the stack.
     Accessing a handler procedure through a trap gate does not affect the IF flag.
 
-    这里的意思就是中断门在发生中断时， 会清空 IF 位
+    这里的意思就是中断门在发生中断时， 会清空 IF 位， 并且 iret 会恢复 if 位
 
 
 

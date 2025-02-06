@@ -3,22 +3,41 @@
 #include "l_io.h"
 #include "l_debug.h"
 #include "l_printk.h"
+#include "l_task.h"
+#include "l_assert.h"
+#include "l_os.h"
 
 
-static uint32_t _local_cnt = 0;
+/// @brief 全局时间片
+uint32_t jiffies = 0;
 
-/// @brief 时钟中断处理函数
+/// @brief 时钟中断处理函数，进行进程切换
 /// @param vector 
 static void clock_handler(int vector)
 {
-    DEBUGK("This is %d time to print by int %d.\n", _local_cnt++, vector);
-    send_eoi(vector);   //  不要忘记eoi
+    // DEBUGK("This is %d time to print by int %d.\n", jiffies, vector);
+    send_eoi(vector);                           //  不要忘记eoi, 因为 还有 if 位，所以 先 send_eoi 没有问题
+    jiffies++;                                  //  全局时间片++ 
+
+    task_t_new *task = running_task();
+    assert(task->magic == OS_MAGIC);
+
+    task->jiffies = jiffies;                    //  更新全局 jiffies
+    task->ticks--;                              //  时间片 -- 
+    
+    if(task->ticks == 0)                        //  时间片耗尽, 进行调度， 否则继续执行
+    {
+        task->ticks = task->priority;           //  重新赋予 时间片
+        schedule();
+    }
 }
 
 
 /// @brief 8253 初始化：频率生成器初始化
 static void pit_8253_init()
 {
+    //  这里找机会注释一下 
+    //  todo
     write_byte_to_port(PIT_8253_MODE_CMD_REG, 0b00110100);      // 00: channel_0;  11:low_bit_high_bit;  010: rate_generate;  0: 16-bit
     write_byte_to_port(PIT_8253_CHANNEL_0, CLOCK_COUNTER & 0xff);      
     write_byte_to_port(PIT_8253_CHANNEL_0, (CLOCK_COUNTER >> 8) & 0xff);      
@@ -46,7 +65,7 @@ void clock_init()
 
     pit_init();                                                         //  8253 初始化
     set_hardware_interrupt_handler(CLOCK_IRQ, clock_handler);           //  设置中断处理函数
-    // set_hardware_interrupt_mask(CLOCK_IRQ, True);                       //  打开中断屏蔽字
+    set_hardware_interrupt_mask(CLOCK_IRQ, True);                       //  打开中断屏蔽字
     printk("#### CLOCK AND BEEP INIT...\n");
 }
 
