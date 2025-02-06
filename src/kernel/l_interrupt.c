@@ -95,7 +95,7 @@ void send_eoi(int vector)
 
 
 // uint32_t _cnt = 0;
-extern void schedule();
+// extern void schedule();
 
 /// @brief 外部中断 处理函数
 /// @param vector 
@@ -205,6 +205,46 @@ void set_hardware_interrupt_mask(uint32_t irq, bool if_enable)
         write_byte_to_port(_port, read_byte_from_port(_port) | (_data));
     }
 
+}
+
+/// @brief 关闭 if 位，返回原 if 位
+/// @return 
+bool interrupt_disable()
+{
+    asm volatile(
+        "pushfl\n"        // eflag 入栈
+        "cli\n"           // 关中断
+        "popl %eax\n"     // pop 到 eax
+        "shrl $9, %eax\n" // 右移 9 位
+        "andl $1, %eax\n" // 与 1
+    );
+}
+
+/// @brief 返回 if 位
+/// @return 
+bool get_if_flag()
+{
+        asm volatile(
+        "pushfl\n"        // eflag 入栈
+        "popl %eax\n"     // pop 到 eax
+        "shrl $9, %eax\n" // 右移 9 位
+        "andl $1, %eax\n" // 与 1
+    );
+}
+
+/// @brief flag = true 开中断，= flase 关中断
+/// @param flag 
+/// @return 
+bool set_if_flag(bool flag)
+{
+    if(flag)
+    {
+        asm volatile("sti\n");
+    }
+    else
+    {
+        asm volatile("cli\n");
+    }
 }
 
 /// @brief 中断初始化

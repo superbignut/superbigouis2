@@ -29,20 +29,13 @@ void kernel_init()
 
     interrupt_init();       //  pic、idt 初始化
 
-    clock_init();           //  8253 时钟、beep 初始化
+    // clock_init();           //  8253 时钟、beep 初始化
 
-    time_init();            //  CMOS 时间初始化
+    // time_init();            //  CMOS 时间初始化
 
-    rtc_init();             //  rtc 实时时钟初始化
+    // rtc_init();             //  rtc 实时时钟初始化
 
     // asm volatile("sti");    //  开中断
-
-    extern void memory_test2();
-    // extern void bitmap_test();
-
-    // bitmap_test();
-
-    memory_test2();
 
     while(True);            //  死循环
 }

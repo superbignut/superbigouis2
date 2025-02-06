@@ -44,6 +44,12 @@ void set_hardware_interrupt_mask(uint32_t irq, bool if_enable);
 
 void send_eoi(int vector);
 
+bool interrupt_disable();
+
+bool get_if_flag();
+
+bool set_if_flag(bool flag);
+
 
 /// @brief 打开中断
 static inline void c_sti()
