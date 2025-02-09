@@ -1,6 +1,6 @@
 #include "l_console.h"
 #include "l_string.h"
-
+#include "l_interrupt.h"
 struct _console
 {
     uint32_t screen_pos;        // 0xB8000 开始的绝对坐标 字节为单位
@@ -186,6 +186,7 @@ static void console_del()
 /// @param count 
 void console_write(char *buf, uint32_t count)
 {
+    bool tmp = interrupt_disable();                                     //  获取当下的中断状态， 并在最后进行恢复
     char ch;
     // char *ptr = (char *)(console.cursor_pos);                        //  debug
     while(count--)
@@ -224,6 +225,8 @@ void console_write(char *buf, uint32_t count)
         }
     }
     update_cursor();
+
+    set_if_flag(tmp);                                                   //  恢复之前的中断状态
 }
 
 /// @brief 暂时只有屏幕清空

@@ -44,16 +44,16 @@ typedef enum task_state_t
 /// @brief 进程 pcb 信息
 typedef struct task_t_new
 {
-    uint32_t       *stack;              //  内核栈此时的栈顶
-    task_state_t    state;              //  任务状态
-    uint32_t        priority;           //  任务优先级
-    uint32_t        ticks;              //  剩余时间片
-    uint32_t        jiffies;            //  上次执行时的全局时间片
-    uint32_t        name[TASK_NAME_LEN];//  任务名
-    uint32_t        uid;                //  用户 id
-    uint32_t        pde;                //  页目录 物理地址
-    bitmap_t       *vmap;               //  进程虚拟内存位图
-    uint32_t        magic;              //  校验 魔数
+    uint32_t       *stack;                  //  内核栈此时的栈顶
+    task_state_t    state;                  //  任务状态
+    uint32_t        priority;               //  任务优先级
+    uint32_t        ticks;                  //  剩余时间片
+    uint32_t        jiffies;                //  上次执行时的全局时间片
+    char            name[TASK_NAME_LEN];    //  任务名
+    uint32_t        uid;                    //  用户 id
+    uint32_t        pde;                    //  页目录 物理地址
+    bitmap_t       *vmap;                   //  进程虚拟内存位图
+    uint32_t        magic;                  //  校验 魔数
 } task_t_new;
 
 void task_init();

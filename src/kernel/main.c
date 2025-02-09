@@ -16,6 +16,7 @@
 #include "l_rtc.h"
 #include "l_memory.h"
 #include "l_bitmap.h"
+#include "l_gate.h"
 
 void kernel_init()
 {
@@ -37,11 +38,13 @@ void kernel_init()
 
     // asm volatile("sti");    //  开中断
 
-    extern void task_init();
+    // extern void task_init();
 
-    task_init();
+    task_init();                //  多线程初始化
 
-    set_if_flag(True);
+    // set_if_flag(True);
 
-    while(True);            //  死循环
+    syscall_init();             //  系统调用初始化
+
+    // while(True);            //  死循环
 }

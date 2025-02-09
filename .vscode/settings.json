@@ -13,6 +13,7 @@
         "l_clock.h": "c",
         "l_assert.h": "c",
         "cmath": "c",
-        "l_memory.h": "c"
+        "l_memory.h": "c",
+        "l_debug.h": "c"
     }
 }

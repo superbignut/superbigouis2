@@ -12,6 +12,7 @@ gdtr_content idt_ptr;                       //  idt 选择子
 
 extern handler_t handler_entry_table[HANDLER_ENTRY_SIZE];       //  中断处理函数入口地址 idt.handler -> handler_entry_table[i] -> handler_table[i] -> exception_handler()
                                                                 //  汇编中实现的主要功能是，判断是否压入 错误码，跳转回来
+extern void syscall_handler();                                  //  系统调用处理函数
 
 
 handler_t handler_table[IDT_SIZE];                              //  真正的处理函数位置
@@ -138,6 +139,18 @@ static void idt_init()
     {
         handler_table[i] = hardware_int_handler;
     }
+
+    gate_descriptor *gate_syscall = &idt[0x80];                                 //  系统调用编号
+
+    gate_syscall->offest_low = ((uint32_t)syscall_handler) & 0xffff;            //  低16位
+    gate_syscall->offest_high = (((uint32_t)syscall_handler) >> 16) & 0xffff;   //  高16位
+    gate_syscall->segment_selector = 1 << 3;                                    //  与 loader 中的 code_selector 一致
+    gate_syscall->reserved = 0;
+    gate_syscall->type = 0b1110;
+    gate_syscall->segment = 0;
+    gate_syscall->DPL = 3;      //  用户态，在用户态的代码也能中断切进来
+    gate_syscall->P = 1;        //  有效
+
 
     idt_ptr.base_addr = (uint32_t)&idt;
     idt_ptr.limit = sizeof(idt) - 1;        //  极限是 8N-1 手册中有说明

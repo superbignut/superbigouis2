@@ -100,7 +100,7 @@ static void task_table_setup()
 void schedule()
 {
     task_t_new *current = running_task();
-    task_t_new *next = task_search_in_table(TASK_READY);
+    task_t_new *next = task_search_in_table(TASK_READY);        //  找到 就绪任务
 
     assert(next->magic == OS_MAGIC);
     assert(next != NULL);
@@ -108,6 +108,11 @@ void schedule()
     if(current->state == TASK_RUNNING)          //  更新两个任务的状态
     {
         current->state = TASK_READY;
+    }
+
+    if(current->ticks == 0)                     //  时间片耗尽, 重新赋予
+    {
+        current->ticks = current->priority;
     }
     next->state = TASK_RUNNING;
 
@@ -144,7 +149,7 @@ static task_t_new *task_create(target_t target, const char *name, uint32_t prior
     task->jiffies = 0;                                  //  最初的 jiffies 设置为 1
     task->state = TASK_READY;                           //  就绪
     task->vmap = &kernel_bitmap;                        //  暂未使用
-    task->pde = KERNEL_PAGE_DIR;
+    task->pde = KERNEL_PAGE_DIR;                        //  这里是页目录，如果多个任务使用用一个页目录 应该被认作同一个进程
     task->magic = OS_MAGIC;
 
     return task;

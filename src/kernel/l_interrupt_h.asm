@@ -31,6 +31,10 @@ interrupt_entry:
 
     call [_handler_table + eax * 4]         ; 调用处理函数 回到 c 
 
+    global interrupt_exit
+
+interrupt_exit:
+
     pop eax                                 ; 这里能走回来吗？？？
 
     popa
@@ -152,6 +156,47 @@ _handler_entry_table:                       ;  这里就相当于把 各个处�
     dd _interrupt_handler_0x2F
 
 
+section .text
+
+    extern _syscall_check, _syscall_table
+    global _syscall_handler
+
+    ;  系统调用处理函数，
+_syscall_handler:
+
+    push eax                ;  暂存 eax, 进行参数检查
+
+    call _syscall_check     ;  也就是检查 系统调用号
+
+    pop eax                 ;  返回值在 eax 寄存器中， 后续根据eax 的不同调用号调用不同的 处理函数
+
+    push 0x2222_2222        ;  类比错误码
+    
+    push 0x80               ;  类比异常编号
+
+    push ds
+    push es 
+    push fs 
+    push gs
+
+    pusha                                   ;  EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
+
+    push 0x80               ;  参数 4
+
+    push edx                ;  参数 3        
+
+    push ecx                ;  参数 2
+
+    push ebx                ;  参数 1
+
+    call [_syscall_table + eax * 4]         ;  调用
+
+    add esp, 12                             ;  三个参数的 栈的恢复， 这里之所以 不是 add esp, 16 是为了留一个 参数4， 进而兼容 interrupt_exit
+    
+    mov dword [esp + 8 * 4], eax            ;  把 eax 放回到 pusha 中的 eax, 进而在 popa 的时候，恢复到 eax 
+                                            ;  从而作为 系统调用 的返回值
+
+    jmp interrupt_exit
 
 
 ;    extern _printk

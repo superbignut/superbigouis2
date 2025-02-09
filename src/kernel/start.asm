@@ -22,6 +22,10 @@ _start:
     
     call _kernel_init   
 
+    mov eax, 0
+    int 0x80
+
+    xchg bx, bx
     jmp $
 test_push_and_ret:   
 

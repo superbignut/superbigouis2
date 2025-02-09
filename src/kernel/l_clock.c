@@ -27,7 +27,7 @@ static void clock_handler(int vector)
     
     if(task->ticks == 0)                        //  时间片耗尽, 进行调度， 否则继续执行
     {
-        task->ticks = task->priority;           //  重新赋予 时间片
+        // task->ticks = task->priority;        //  重新赋予 时间片， 可以移动到调度中判断
         schedule();
     }
 }
@@ -38,8 +38,13 @@ static void pit_8253_init()
 {
     //  这里找机会注释一下 
     //  todo
-    write_byte_to_port(PIT_8253_MODE_CMD_REG, 0b00110100);      // 00: channel_0;  11:low_bit_high_bit;  010: rate_generate;  0: 16-bit
-    write_byte_to_port(PIT_8253_CHANNEL_0, CLOCK_COUNTER & 0xff);      
+    write_byte_to_port(PIT_8253_MODE_CMD_REG, 0b00110100);      //  67位：00: channel_0;  
+                                                                //  45位：11:low_bit_high_bit;  
+                                                                //  123位：010: rate_generate;  
+                                                                //  0位：0: 16-bit
+                                                                //  写命令寄存器， 将8253注册为频率发生器
+    
+    write_byte_to_port(PIT_8253_CHANNEL_0, CLOCK_COUNTER & 0xff);       //  注册频率
     write_byte_to_port(PIT_8253_CHANNEL_0, (CLOCK_COUNTER >> 8) & 0xff);      
 }
 
