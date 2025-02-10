@@ -102,7 +102,7 @@ $(BUILD_KERNEL)/kernel.bin: $(BUILD_KERNEL)/start.o 		\
 							$(BUILD_KERNEL)/l_rtc.o			\
 							$(BUILD_KERNEL)/l_memory.o		\
 							$(BUILD_KERNEL)/l_bitmap.o		\
-							$(BUILD_KERNEL)/l_gate.o
+							$(BUILD_KERNEL)/l_syscall.o
 							
 
 # 这里链接到了汇编和c # 并制定了代码段的位置 # 并且完成静态链接

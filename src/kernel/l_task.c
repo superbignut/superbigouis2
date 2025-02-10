@@ -8,6 +8,7 @@
 #include "l_memory.h"
 #include "l_assert.h"
 #include "l_interrupt.h"
+#include "l_syscall.h"
 
 #define PAGE_SIZE 0x1000                                //  每个任务分配一页的栈 4G / 4k = 1M
                                                         //  这里 应该是 虚拟机内部的实现上的区别，加上delay后 bochs 打印是正常的，qemu就会不均匀
@@ -96,14 +97,14 @@ static void task_table_setup()
     memory_set(task_table, 0, sizeof(task_table));  // 清空
 }
 
-/// @brief 找到进程状态是 TASK_READY 的进程， 并使用task_switch 进行切换
+/// @brief 找到进程状态是 TASK_READY 的进程， 并使用 task_switch 进行切换
 void schedule()
 {
     task_t_new *current = running_task();
     task_t_new *next = task_search_in_table(TASK_READY);        //  找到 就绪任务
 
-    assert(next->magic == OS_MAGIC);
     assert(next != NULL);
+    assert(next->magic == OS_MAGIC);
 
     if(current->state == TASK_RUNNING)          //  更新两个任务的状态
     {
@@ -228,7 +229,7 @@ uint32_t _ofp thread_a()    //  这里开启栈帧感觉问题也不大的
     while(True)
     {
         printk("A");
-        delay(40000);
+        syscall_yield();
     }
 }
 
@@ -241,8 +242,8 @@ uint32_t _ofp thread_b()
     set_if_flag(True);
     while(True)
     {
-        printk("B");
-        delay(40000);
+        printk("B");        
+        syscall_yield();
     }
 }
 
@@ -255,7 +256,7 @@ uint32_t _ofp thread_c()
     while(True)
     {
         printk("C");
-        delay(40000);
+        syscall_yield();
     }
 }
 

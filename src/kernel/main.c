@@ -16,7 +16,7 @@
 #include "l_rtc.h"
 #include "l_memory.h"
 #include "l_bitmap.h"
-#include "l_gate.h"
+#include "l_syscall.h"
 
 void kernel_init()
 {
@@ -42,9 +42,9 @@ void kernel_init()
 
     task_init();                //  多线程初始化
 
-    // set_if_flag(True);
-
     syscall_init();             //  系统调用初始化
 
-    // while(True);            //  死循环
+    set_if_flag(True);          
+
+    while(True);                //  死循环
 }

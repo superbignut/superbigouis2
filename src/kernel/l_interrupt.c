@@ -108,7 +108,7 @@ static void hardware_int_handler(int vector)
     // printk("hardware_int_handler was called %d times.\n", _cnt++);
 }
 
-/// @brief 对前32个异常初始化，handler函数 为汇编中定义的 _interrupt_handler_0x**
+/// @brief 对前32个异常初始化、初始化16个外部中断、初始化系统调用：指定各种属性 和 处理函数
 static void idt_init()
 {
 
