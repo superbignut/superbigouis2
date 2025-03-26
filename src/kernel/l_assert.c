@@ -1,3 +1,13 @@
+/**
+ * @file l_assert.c
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2025-03-26
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "l_assert.h"
 #include "l_printk.h"
 

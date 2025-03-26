@@ -1,3 +1,13 @@
+/**
+ * @file main.c 
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2025-03-26
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "l_os.h"
 #include "l_types.h"
 #include "l_io.h"
@@ -18,6 +28,10 @@
 #include "l_bitmap.h"
 #include "l_syscall.h"
 
+/**
+ * @brief This is the first c-function 
+ * 
+ */
 void kernel_init()
 {
     // console_init();      //  光标、打印初始化

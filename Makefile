@@ -28,7 +28,13 @@ INCLUDE := -I./src/include # 头文件
 
 CC = gcc
 
-.PHONY: bochs clean qemu qemug test
+CHROME_PATH = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+
+DOXYGEN_HTML_PATH = "C:\Users\bignuts\Desktop\ZJU\superbigouis2\html\index.html"
+
+DOXYGRN = doxygen
+
+.PHONY: bochs clean qemu qemug test html
 
 QEMU := qemu-system-i386 \
 				-m 32M \
@@ -134,3 +140,7 @@ test.s: .\src\test\test.c
 	-o $@
 #
 #-mpreferred-stack-boundary=2  是让栈 以4 个字节进行对齐
+
+html: .\html\index.html .\Doxyfile
+	doxygen .\Doxyfile
+	$(CHROME_PATH) $(DOXYGEN_HTML_PATH)
