@@ -29,8 +29,17 @@
 #include "l_syscall.h"
 
 /**
- * @brief This is the first c-function 
+ * @brief This is the first C-function which was jumped from start.asm after going to protected mode of i386-cpu.
+ *        Therefore, at the begining of this function, some critical/important initialization function were called
+ *        as below. The initialization process include the Physics-Memory-Init, Paging-Init, Clock-Chip init and so
+ *        on. 
+ *        There are also some Initialization called that were commented out, for the reason of moving into start.asm.
+ *        But I can't remember... // Todo
+ * @param 
  * 
+ * @author
+ * 
+ * @return
  */
 void kernel_init()
 {
