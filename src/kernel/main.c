@@ -30,16 +30,27 @@
 
 /**
  * @brief This is the first C-function which was jumped from start.asm after going to protected mode of i386-cpu.
- *        Therefore, at the begining of this function, some critical/important initialization function were called
- *        as below. The initialization process include the Physics-Memory-Init, Paging-Init, Clock-Chip init and so
- *        on. 
- *        There are also some Initialization called that were commented out, for the reason of moving into start.asm.
- *        But I can't remember... // Todo
- * @param 
  * 
- * @author
  * 
- * @return
+ * @details At the begining of this function, some critical/important initialization function were called as below.
+ *          The initialization process include the Physics-Memory-Init, Paging-Init, Clock-Chip init and so on. 
+ * 
+ *          There are also some Initialization called that were commented out, for the reason of moving into start.asm.
+ *          because memory_init function use ards_buffer_ptr and ards_num_ptr which are saved by loader when memory_detecting.
+ *          so these variable is saved into some eax, exx.... to passed into c-memory_init-function.
+ * 
+ *          Avoiding c-compiler-gcc to do more complicate stack management (such as stack-frame...), c-memory_init-function
+ *          is directly call by start.asm, while c-memory_init-function depends on gdt and console to use print-function.
+ * 
+ *          Besides, gdt was originally save at the end of loader's code which is located at 0x1000, while 0x1000 is also be
+ *          used as KERNEL_PAGE_DIR in paging-function.So, avoiding the conflict of 0x1000, gdt_init is also moved into 
+ *          start.asm.
+ * 
+ *          For the two reasons above, console_init, gdt_init, and memory_init function is moved into start.asm.
+ *
+ * 
+ * @author bitnut
+ * 
  */
 void kernel_init()
 {

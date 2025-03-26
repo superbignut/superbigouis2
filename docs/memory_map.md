@@ -1,6 +1,6 @@
 + 0x0000
 
-+ 0x1000 内核页目录
++ 0x1000 内核页目录 / loader.asm was readed by boot.asm(from disk to memory:0x1000)
 
 + 0x2000 内核页表 1
 
