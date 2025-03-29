@@ -135,7 +135,7 @@ protect_enable:
     mov eax, 20241130       ; 自定义魔数
     ; xchg bx, bx
     mov dword ebx, memory_detect_ards_num       ; 第二个参数
-    mov ecx, memory_detect_ards_buffer          ; 第三个参数
+    mov dword ecx, memory_detect_ards_buffer    ; 第三个参数
                             ; 跳转到 内核初始化代码
     jmp code_selector : 0x10000
 

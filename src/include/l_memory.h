@@ -1,3 +1,13 @@
+/**
+ * @file l_memory.h
+ * @author bignut
+ * @brief 
+ * @version 0.1
+ * @date 2025-03-27
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef LMEMORY_H_
 #define LMEMORY_H_
 
@@ -25,7 +35,7 @@ static uint32_t KERNEL_PAGE_TABLE[] = {
 
 #define KERNEL_PAGE_NUM (sizeof(KERNEL_PAGE_TABLE) / sizeof(uint32_t))
 
-#define KERNEL_MEMORY_SIZE (0x400000 * KERNEL_PAGE_NUM)      //  内核页表能映射的内存， 一个页 4MB
+#define KERNEL_MEMORY_SIZE (0x400000 * KERNEL_PAGE_NUM)           //  内核页表能映射的内存， 一个页 4MB
                                                                                           //  也即 内核使用的内存 0 - 8MB
 #define IDX(addr) (((uint32_t)(addr)) >> 12)                      //  页表索引，右移12位
 #define PAGE(idx) ((uint32_t)(idx) << 12)                         //  页的开始地址
@@ -36,15 +46,20 @@ static uint32_t KERNEL_PAGE_TABLE[] = {
 #define ASSERT_PAGE(addr) assert(((addr) & 0xfff) == 0)           //  检验是否是页地址，低 12位为0
 
 /*
-    Address Range Descriptor Structure 
-  + 0	    BaseAddrLow		Low 32 Bits of Base Address  是返回的低地址 32位
-  + 4	    BaseAddrHigh	High 32 Bits of Base Address 是返回的高地址 32位
-  + 8	    LengthLow		Low 32 Bits of Length in Bytes 是可用内存的长度 以字节位单位 低32
-  + 12	  LengthHigh		High 32 Bits of Length in Bytes 是可用内存的长度 以字节位单位 高32
-  + 16	  Type		    Address type of  this range.  类型如下：
+  
 */
 
-/// @brief 内存检测数据结构
+
+/**
+ * @brief Structure used by memory-detected consequence.
+ * 
+ * @details Address Range Descriptor Structure 
+ * + 0	    BaseAddrLow		Low 32 Bits of Base Address       是返回的低地址 32位
+ * + 4	    BaseAddrHigh	High 32 Bits of Base Address      是返回的高地址 32位
+ * + 8	    LengthLow		  Low 32 Bits of Length in Bytes    是可用内存的长度 以字节位单位 低32
+ * + 12	    LengthHigh		High 32 Bits of Length in Bytes   是可用内存的长度 以字节位单位 高32
+ * + 16	    Type		      Address type of  this range.      类型如下：
+ */
 typedef struct ards_ptr
 {
     uint64_t addr;
@@ -53,7 +68,11 @@ typedef struct ards_ptr
 } _packed ards_ptr;
 
 
-/// @brief 页表项数据结构
+
+/** @struct page_entry
+ *  
+ * @brief page_entry_structure used as pge-item or pte-item.
+ */
 typedef struct page_entry
 {
   uint32_t present : 1;         //  1 表示 存在

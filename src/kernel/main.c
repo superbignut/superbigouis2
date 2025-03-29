@@ -1,7 +1,7 @@
 /**
  * @file main.c 
- * @author your name (you@domain.com)
- * @brief 
+ * @author bignut
+ * @brief First c file/function jumped from start.asm.
  * @version 0.1
  * @date 2025-03-26
  * 

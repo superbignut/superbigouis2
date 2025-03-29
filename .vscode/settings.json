@@ -14,6 +14,12 @@
         "l_assert.h": "c",
         "cmath": "c",
         "l_memory.h": "c",
-        "l_debug.h": "c"
+        "l_debug.h": "c",
+        "l_io.h": "c",
+        "l_types.h": "c",
+        "l_string.h": "c",
+        "l_gdt.h": "c",
+        "l_stdlib.h": "c",
+        "l_syscall.h": "c"
     }
 }

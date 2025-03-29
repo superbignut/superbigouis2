@@ -1,3 +1,13 @@
+/**
+ * @file l_memory.c
+ * @author bignut
+ * @brief Ards and pyhsics-addr-bit-map and paging, which is the most ESSENTIAL file/function in this os.
+ * @version 0.1
+ * @date 2025-03-27
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #include "l_memory.h"
 #include "l_types.h"
 #include "l_os.h"
@@ -6,14 +16,15 @@
 #include "l_printk.h"
 #include "l_stdlib.h"
 
-static uint32_t memory_base = 0;                        //  基地址
-static uint32_t memory_size = 0;                        //  地址长度
+static uint32_t memory_base = 0;                /**< base-addr which was init in ards-init function */    
+static uint32_t memory_size = 0;                /**< size/num-addr which was init in ards-init function */    
 
-static uint32_t start_page = 0;                         //  被分配的起始页号, 不参与更新
-static uint32_t total_pages = 0;                        //  总页数
-static uint32_t free_pages = 0;                         //  空闲页数
+static uint32_t start_page = 0;                 /**< first usable page start-physics-page-num for user-to-use which was init in memory_map_init function */
 
-bitmap_t kernel_bitmap;                                    //  内核位图结构体
+static uint32_t total_pages = 0;                /**< ALL-PAGE-DETRCTED. Althought it just is max-ards-size : base + size which was init in ards-init function */
+static uint32_t free_pages = 0;                 /**< PAGE-SIZE-DETRCTED. Althought it just is max-ards-size : size which was init in ards-init function*/
+
+bitmap_t kernel_bitmap;                         /**< bit-map global var used to sl kernel-phy-bit-map which was init in memory_map_init function*/
 
 // #define used_pages (total_pages - free_pages)           // 已用页数
 
@@ -21,7 +32,19 @@ bitmap_t kernel_bitmap;                                    //  内核位图结�
 /// @param magic 魔数， 作为一个校验值
 /// @param ards_num_ptr 这个参数是 ards 数量的 指针
 /// @param ards_buffer_ptr 这个参数是 ards 存放地址位置的 指针
-void memory_init(uint32_t magic, uint32_t ards_num_ptr, uint32_t ards_buffer_ptr)
+
+/**
+ * @brief Find the max-size ards-structure and update memory_base, memory_size, total_pages and free_pages.
+ * 
+ * @details All three params are passed from loader.asm and to start.asm and here.
+ * 
+ * @param magic top stack. which is a fixed number in this os.
+ * 
+ * @param ards_num_ptr mid stack. The num of usable address block.
+ * 
+ * @param ards_buffer_ptr bottom stack. Stucture-ptr of ards-detected.
+ */
+void ards_init(uint32_t magic, uint32_t ards_num_ptr, uint32_t ards_buffer_ptr)
 {
     uint32_t _num;
     ards_ptr *_ptr;
@@ -66,24 +89,41 @@ void memory_init(uint32_t magic, uint32_t ards_num_ptr, uint32_t ards_buffer_ptr
     }
 }
 
-static uint8_t *memory_map_array;               //  物理内存数组, 放在最初的页中，每个编号的字节 代表当前编号的页 被引用的次数
-static uint32_t memory_map_pages_used;          //  已被 物理内存数组 占用的页数 >= 1 页， 类似于页目录的概念
+//  物理内存数组, 放在最初的页中，每个编号的字节 代表当前编号的页 被引用的次数
+
+static uint8_t *memory_map_array;   /**> pyhsics memory map array, which use 8-bit to represent a pyh-page's state(how many times used). */
+
+//  已被 物理内存数组 占用的页数 >= 1 页， 类似于页目录的概念
+
+static uint32_t memory_map_pages_used;  /**>The num of pages used by memory_map_array to indicate all total_pages. */
 
 /// @brief 初始化物理内存-物理页， 初始化虚拟页-位图
+
+/**
+ * @brief Compute the num of pages used by memory_map_array, update memory_map_pages_used, start_page...Todo
+ * 
+ * @details While memory_map_pages_used is calculated out, update memory_map_pages_used, free_pages, and memory_map_array
+ *          Update memory_map_array From 0 to IDX(base_addr = 0x100_000 + memory_map_pages_used = 2), set to 1.
+ *          For the reason that 8-bits is used as an item in memory_map_array, so PAGE_SIZE = 0x1000 = 4k = 2^12
+ *          is also the memory_map_item_per_page.
+ */
 void memory_map_init()
 {   
     memory_map_array = (uint8_t *)memory_base;
-    memory_map_pages_used = div_round_up(total_pages, PAGE_SIZE);               //  每一个页存放 PAGE_SIZE 个字节，计算需要的页数
 
-    free_pages -= memory_map_pages_used;                                        //  更新空闲页数
-    memory_set(memory_map_array, 0, memory_map_pages_used * PAGE_SIZE);         //  物理内存数组 清零
+    uint32_t memory_map_item_per_page = PAGE_SIZE;                                              //  每一个页存放 PAGE_SIZE 个字节
+
+    memory_map_pages_used = div_round_up(total_pages, memory_map_item_per_page);                //  计算需要的页数
+
+    free_pages -= memory_map_pages_used;                                                        //  更新空闲页数
+    memory_set(memory_map_array, 0, memory_map_pages_used * memory_map_item_per_page);          //  物理内存数组 清零
     
-    start_page = IDX(MEMORY_BASE_ADDR) + memory_map_pages_used;                 //  第一个可用的页
+    start_page = IDX(MEMORY_BASE_ADDR) + memory_map_pages_used;                                 //  第一个可用的页
     // printk("%d %d\n", total_pages, start_page);
 
-    for(size_t i = 0; i < start_page; ++i)                                      //  小于 start_page 的页 标记为已用
+    for(size_t i = 0; i < start_page; ++i)                                                      //  小于 start_page 的页 标记为已用
     {
-        memory_map_array[i] = 1;                                                //  物理内存数组 占用标记
+        memory_map_array[i] = 1;                                                                //  物理内存数组 占用标记
     }
     printk("#### MEMORY MAP INIT...\n");
 

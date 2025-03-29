@@ -2,7 +2,7 @@
 
 
     extern _kernel_init         ; windows 的函数需要加 "_"
-    extern _memory_init         ; 内存初始化
+    extern _ards_init         ; 内存初始化
     extern _console_init
     extern _gdt_init
 
@@ -18,7 +18,7 @@ _start:
 
     call _gdt_init
 
-    call _memory_init
+    call _ards_init
     
     call _kernel_init   
 
